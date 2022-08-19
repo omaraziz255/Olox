@@ -9,11 +9,15 @@ import java.nio.file.Path;
 import java.util.Scanner;
 import java.util.stream.Stream;
 
+import static olox.ExitCode.COMMAND_LINE_USAGE_ERROR;
+import static olox.ExitCode.USER_DATA_INCORRECT;
+
 public class Olox {
+    static ErrorReporter errorReporter;
     public static void main(String[] args) throws IOException {
         if(args.length >  1) {
             System.out.println("Usage: jolox [script_name.lx]");
-            System.exit(64);        //Error Code 64 indicates Command Line Usage Error
+            System.exit(COMMAND_LINE_USAGE_ERROR.code);
         }
         else if (args.length == 1) {
             runFile(args[0]);
@@ -25,6 +29,7 @@ public class Olox {
     private static void runFile(String path) throws IOException {
         byte[] bytes = Files.readAllBytes(Path.of(path));
         run(new String(bytes, Charset.defaultCharset()));
+        if(errorReporter.hadError) System.exit(USER_DATA_INCORRECT.code);
     }
 
     private static void runPrompt() throws IOException {
@@ -36,6 +41,7 @@ public class Olox {
             String line = reader.readLine();
             if (line == null) break;    // CTRL-D exits interactive loop (CMD-D for Mac)
             run(line);
+            errorReporter.hadError = false;           // Ensure error flag is reset for each interactive command
         }
     }
 
