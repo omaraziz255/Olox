@@ -6,14 +6,13 @@ import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Scanner;
-import java.util.stream.Stream;
+import java.util.List;
 
 import static olox.ExitCode.COMMAND_LINE_USAGE_ERROR;
 import static olox.ExitCode.USER_DATA_INCORRECT;
 
 public class Olox {
-    static ErrorReporter errorReporter;
+    static ErrorReporter errorReporter = new ErrorReporter();
     public static void main(String[] args) throws IOException {
         if(args.length >  1) {
             System.out.println("Usage: jolox [script_name.lx]");
@@ -41,13 +40,14 @@ public class Olox {
             String line = reader.readLine();
             if (line == null) break;    // CTRL-D exits interactive loop (CMD-D for Mac)
             run(line);
-            errorReporter.hadError = false;           // Ensure error flag is reset for each interactive command
+            errorReporter.hadError = false;    // Ensure error flag is reset for each interactive command
         }
     }
 
     private static void run(String source) {
         Scanner scanner = new Scanner(source);
-        Stream<String> tokens = scanner.tokens();
+
+        List<Token> tokens = scanner.scanTokens();
 
         tokens.forEach(System.out::println);
     }
