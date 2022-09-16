@@ -1,4 +1,4 @@
-package olox;
+package utils;
 
 public enum ExitCode {
     COMMAND_LINE_USAGE_ERROR(64),

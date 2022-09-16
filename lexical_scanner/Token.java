@@ -1,4 +1,4 @@
-package olox;
+package lexical_scanner;
 
 public class Token {
     final TokenType type;
