@@ -1,11 +1,13 @@
-package olox;
+package lexical_scanner;
+
+import utils.ErrorReporter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static olox.TokenType.*;
+import static lexical_scanner.TokenType.*;
 
 public class Scanner {
     private final String source;
@@ -36,11 +38,11 @@ public class Scanner {
         keywords.put("while", WHILE);
     }
 
-    Scanner(String source) {
+    public Scanner(String source) {
         this.source = source;
     }
 
-    List<Token> scanTokens() {
+    public List<Token> scanTokens() {
         while (!isAtEnd()) {
             start = current;
             scanToken();
@@ -90,7 +92,7 @@ public class Scanner {
                     identifier();
                 }
                 else {
-                    Olox.errorReporter.error(line, "Unexpected character.");
+                    ErrorReporter.getInstance().error(line, "Unexpected character.");
                 }
             }
         }
@@ -123,7 +125,7 @@ public class Scanner {
         }
 
         if(isAtEnd()) {
-            Olox.errorReporter.error(line, "Unterminated String");
+            ErrorReporter.getInstance().error(line, "Unterminated String");
             return;
         }
 
@@ -135,7 +137,7 @@ public class Scanner {
     private void commentBlock() {
         while (!isEndOfCommentBlock()) {
             if(isAtEnd()) {
-                Olox.errorReporter.error(line, "Unterminated Comment Block");
+                ErrorReporter.getInstance().error(line, "Unterminated Comment Block");
                 return;
             }
             if(peek() == '\n') line++;
