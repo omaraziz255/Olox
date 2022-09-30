@@ -8,7 +8,8 @@
  * term → factor ( ( "-" | "+" ) factor )* ;
  * factor → unary ( ( "/" | "*" ) unary )* ;
  * unary → ( "!" | "-" ) unary | primary ;
- * primary → NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" ;
+ * primary → NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" | "," comma | ("?" | ":" ) ternary |
+ *           ("!=" | "==" ) equality | (">" | ">=" | "<" | "<=" ) comparison | "+" term | ("/" | "*" ) factor;
  */
 
 package syntax_tree;
@@ -175,17 +176,58 @@ public class Parser {
             return new Expr.Grouping(expr);
         }
 
-        throw error(peek(), "Expected Expression.");
+        if(match(COMMA)) {
+            error(previous(), "Missing left hand expression.");
+            comma();
+            return null;
+        }
+
+        if(match(QUESTION, COLON)) {
+            error(previous(), "Missing expression in ternary condition.");
+            ternary();
+            return null;
+        }
+
+        if(match(BANG_EQUAL, EQUAL_EQUAL)) {
+            error(previous(), "Missing left hand expression in equality");
+            equality();
+            return null;
+        }
+
+        if(match(GREATER, GREATER_EQUAL, LESS, LESS_EQUAL)) {
+            error(previous(), "Missing left hand expression in comparison");
+            comparison();
+            return null;
+        }
+
+        if(match(PLUS)) {
+            error(previous(), "Missing left hand expression in addition");
+            term();
+            return null;
+        }
+
+        if(match(SLASH, STAR)) {
+            error(previous(), "Missing left hand expression in multiplication/division");
+            factor();
+            return null;
+        }
+
+        throw parsingError(peek(), "Expected Expression.");
     }
 
     private Token consume(TokenType type, String message) {
         if(check(type)) return advance();
-        throw error(peek(), message);
+        throw parsingError(peek(), message);
     }
 
-    private ParseError error(Token token, String message) {
+    private ParseError parsingError(Token token, String message) {
         ErrorReporter.getInstance().error(token, message);
         return new ParseError();
+    }
+
+    private void error(Token token, String message) {
+
+        ErrorReporter.getInstance().error(token, message);
     }
 
     private void synchronize() {
