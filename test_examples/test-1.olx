@@ -5,7 +5,7 @@ class Brunch < Breakfast {
     }
     /* This is a comment Block
     over here /* Let's try
-    nesting them *
+    nesting them */
     Is this working ?
     */
 }

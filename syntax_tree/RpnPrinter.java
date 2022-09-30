@@ -4,6 +4,7 @@ import lexical_scanner.TokenType;
 
 import java.util.Objects;
 
+@SuppressWarnings("unused")
 public class RpnPrinter implements Expr.Visitor<String> {
     String print(Expr expr) {
         return expr.accept(this);

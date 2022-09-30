@@ -1,18 +1,18 @@
 package syntax_tree;
 
 public class AstPrinter implements Expr.Visitor<String> {
-        String print(Expr expr) {
+        public String print(Expr expr) {
             return expr.accept(this);
         }
 
         @Override
         public String visitBinaryExpr(Expr.Binary expr) {
-            return paranthesize(expr.operator.getLexeme(), expr.left, expr.right);
+            return parenthesize(expr.operator.getLexeme(), expr.left, expr.right);
         }
 
         @Override
         public String visitGroupingExpr(Expr.Grouping expr) {
-            return paranthesize("group", expr.expression);
+            return parenthesize("group", expr.expression);
         }
 
         @Override
@@ -23,13 +23,13 @@ public class AstPrinter implements Expr.Visitor<String> {
 
         @Override
         public String visitUnaryExpr(Expr.Unary expr) {
-            return paranthesize(expr.operator.getLexeme(), expr.right);
+            return parenthesize(expr.operator.getLexeme(), expr.right);
         }
 
-        private String paranthesize(String name, Expr... exprs) {
+        private String parenthesize(String name, Expr... expressions) {
             StringBuilder builder = new StringBuilder();
             builder.append("(").append(name);
-            for(Expr expr : exprs) {
+            for(Expr expr : expressions) {
                 builder.append(" ");
                 builder.append(expr.accept(this));
             }

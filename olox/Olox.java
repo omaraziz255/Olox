@@ -2,6 +2,9 @@ package olox;
 
 import lexical_scanner.Scanner;
 import lexical_scanner.Token;
+import syntax_tree.AstPrinter;
+import syntax_tree.Expr;
+import syntax_tree.Parser;
 import utils.ErrorReporter;
 
 import java.io.BufferedReader;
@@ -51,6 +54,11 @@ public class Olox {
     private static void run(String source) {
         Scanner scanner = new Scanner(source);
         List<Token> tokens = scanner.scanTokens();
-        tokens.forEach(System.out::println);
+        Parser parser = new Parser(tokens);
+        Expr expression = parser.parse();
+
+        if(errorReporter.getErrorStatus()) return;
+
+        System.out.println(new AstPrinter().print(expression));
     }
 }

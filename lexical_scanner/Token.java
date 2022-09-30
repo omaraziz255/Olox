@@ -3,7 +3,9 @@ package lexical_scanner;
 public class Token {
     final TokenType type;
     final String lexeme;
+
     final Object literal;
+
     final int line;
 
     Token(TokenType type, String lexeme, Object literal, int line)  {
@@ -19,5 +21,17 @@ public class Token {
 
     public String getLexeme() {
         return lexeme;
+    }
+
+    public TokenType getType() {
+        return type;
+    }
+
+    public Object getLiteral() {
+        return literal;
+    }
+
+    public int getLine() {
+        return line;
     }
 }
