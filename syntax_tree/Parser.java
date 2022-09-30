@@ -1,6 +1,7 @@
 /**
  * This Parser parses the following grammar for Olox
- * expression → equality ;
+ * expression → comma;
+ * comma -> ternary ( "," ternary )* ;
  * equality → comparison ( ( "!=" | "==" ) comparison )* ;
  * comparison → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
  * term → factor ( ( "-" | "+" ) factor )* ;
@@ -39,7 +40,21 @@ public class Parser {
     }
 
     private Expr expression() {
-        return equality();
+        return comma();
+    }
+
+
+    /*TODO Handle commas during function argument parsing */
+    private Expr comma() {
+        Expr expr = equality();
+
+        while(match(COMMA)) {
+            Token comma = previous();
+            Expr right = equality();
+            expr = new Expr.Binary(expr, comma, right);
+        }
+
+        return expr;
     }
 
     private Expr equality() {
