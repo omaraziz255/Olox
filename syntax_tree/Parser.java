@@ -2,6 +2,7 @@
  * This Parser parses the following grammar for Olox
  * expression → comma;
  * comma -> ternary ( "," ternary )* ;
+ * ternary -> equality ( "?" comma ":" ternary)?
  * equality → comparison ( ( "!=" | "==" ) comparison )* ;
  * comparison → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
  * term → factor ( ( "-" | "+" ) factor )* ;
@@ -46,12 +47,25 @@ public class Parser {
 
     /*TODO Handle commas during function argument parsing */
     private Expr comma() {
-        Expr expr = equality();
+        Expr expr = ternary();
 
         while(match(COMMA)) {
             Token comma = previous();
-            Expr right = equality();
+            Expr right = ternary();
             expr = new Expr.Binary(expr, comma, right);
+        }
+
+        return expr;
+    }
+
+    private Expr ternary() {
+        Expr expr = equality();
+
+        if(match(QUESTION)) {
+            Expr left = comma();
+            consume(COLON, "Expected : after then branch of ternary expression");
+            Expr right = ternary();
+            expr = new Expr.Ternary(expr, left, right);
         }
 
         return expr;

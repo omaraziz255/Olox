@@ -6,12 +6,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 
+import static tools.ExprDefinition.*;
 import static utils.ExitCode.COMMAND_LINE_USAGE_ERROR;
-import static tools.ExprDefinition.BASE_EXPR;
-import static tools.ExprDefinition.BINARY_EXPR;
-import static tools.ExprDefinition.GROUPING;
-import static tools.ExprDefinition.LITERAL;
-import static tools.ExprDefinition.UNARY_EXPR;
 
 public class GenerateAst {
     public static void main(String[] args) throws IOException {
@@ -25,6 +21,7 @@ public class GenerateAst {
                 BINARY_EXPR.expr,
                 GROUPING.expr,
                 LITERAL.expr,
+                TERNARY.expr,
                 UNARY_EXPR.expr
         ));
     }

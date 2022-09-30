@@ -22,6 +22,11 @@ public class AstPrinter implements Expr.Visitor<String> {
         }
 
         @Override
+        public String visitTernaryExpr(Expr.Ternary expr) {
+            return parenthesizeTernary(expr);
+        }
+
+        @Override
         public String visitUnaryExpr(Expr.Unary expr) {
             return parenthesize(expr.operator.getLexeme(), expr.right);
         }
@@ -37,5 +42,10 @@ public class AstPrinter implements Expr.Visitor<String> {
             builder.append(")");
 
             return builder.toString();
+        }
+
+        private String parenthesizeTernary(Expr.Ternary expr) {
+            String name = "condition " + expr.condition.accept(this);
+            return parenthesize(name, expr.left, expr.right);
         }
 }
