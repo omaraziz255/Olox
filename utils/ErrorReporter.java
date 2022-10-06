@@ -2,9 +2,11 @@ package utils;
 
 import lexical_scanner.Token;
 import lexical_scanner.TokenType;
+import syntax_tree.RuntimeError;
 
 public class ErrorReporter {
-    private boolean hadError = false;
+    private boolean hadBuildError = false;
+    private boolean hadRuntimeError = false;
     private ErrorReporter(){}
 
     private static final ErrorReporter instance = new ErrorReporter();
@@ -25,21 +27,30 @@ public class ErrorReporter {
         }
     }
 
-    public boolean getErrorStatus() {
-        return hadError;
+    public boolean hasBuildError() {
+        return hadBuildError;
     }
 
-    public void setErrorStatus(boolean status) {
-        hadError = status;
+    public boolean hasRuntimeError() {
+        return hadRuntimeError;
+    }
+
+    public void setBuildErrorStatus(boolean status) {
+        hadBuildError = status;
     }
 
     private void report(int line, String message) {
         System.err.println("[line " + line + "] Error: " + message);
-        this.hadError = true;
+        this.hadBuildError = true;
     }
 
     private void report(int line, String where, String message) {
         System.err.println("[line " + line + "] Error" + where + ": " + message);
-        this.hadError = true;
+        this.hadBuildError = true;
+    }
+
+    public void runTimeError(RuntimeError error) {
+        System.err.println(error.getMessage() + "\n[line " + error.getToken().getLine() + "]");
+        hadRuntimeError = true;
     }
 }

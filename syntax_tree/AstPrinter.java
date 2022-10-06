@@ -1,5 +1,6 @@
 package syntax_tree;
 
+@SuppressWarnings("unused")
 public class AstPrinter implements Expr.Visitor<String> {
         public String print(Expr expr) {
             return expr.accept(this);
