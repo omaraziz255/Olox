@@ -2,9 +2,7 @@ package olox;
 
 import lexical_scanner.Scanner;
 import lexical_scanner.Token;
-import syntax_tree.Expr;
-import syntax_tree.Interpreter;
-import syntax_tree.Parser;
+import syntax_tree.*;
 import utils.ErrorReporter;
 
 import java.io.BufferedReader;
@@ -34,7 +32,7 @@ public class Olox {
 
     private static void runFile(String path) throws IOException {
         byte[] bytes = Files.readAllBytes(Path.of(path));
-        run(new String(bytes, Charset.defaultCharset()));
+        run(new String(bytes, Charset.defaultCharset()), RunMode.FILE);
         if(errorReporter.hasBuildError()) System.exit(USER_DATA_INCORRECT.code);
         if(errorReporter.hasRuntimeError()) System.exit(RUNTIME_ERROR.code);
     }
@@ -47,19 +45,19 @@ public class Olox {
             System.out.print(">> ");
             String line = reader.readLine();
             if (line == null) break;    // CTRL-D exits interactive loop (CMD-D for Mac)
-            run(line);
+            run(line, RunMode.REPL);
             errorReporter.setBuildErrorStatus(false);    // Ensure error flag is reset for each interactive command
         }
     }
 
-    private static void run(String source) {
+    private static void run(String source, RunMode mode) {
         Scanner scanner = new Scanner(source);
         List<Token> tokens = scanner.scanTokens();
-        Parser parser = new Parser(tokens);
-        Expr expression = parser.parse();
+        Parser parser = new Parser(tokens, mode);
+        List<Stmt> statements = parser.parse();
 
         if(errorReporter.hasBuildError()) return;
 
-        interpreter.interpret(expression);
+        interpreter.interpret(statements, mode);
     }
 }

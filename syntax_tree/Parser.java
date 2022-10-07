@@ -1,15 +1,24 @@
 /**
  * This Parser parses the following grammar for Olox
+ * program -> declaration* EOF;
+ * declaration -> varDecl | statement;
+ * varDecl -> "var" IDENTIFIER ( "=" expression)? ";";
+ * statement -> exprStmt | printStmt | block;
+ * block -> "{" declaration* "}";
+ * exprStmt -> expression ";" ;
+ * printStmt -> "print" expression ";"
  * expression → comma;
  * comma -> ternary ( "," ternary )* ;
- * ternary -> equality ( "?" comma ":" ternary)?
+ * ternary -> assignment ( "?" comma ":" ternary)?
+ * assignment -> IDENTIFIER "=" assignment | equality;
  * equality → comparison ( ( "!=" | "==" ) comparison )* ;
  * comparison → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
  * term → factor ( ( "-" | "+" ) factor )* ;
  * factor → unary ( ( "/" | "*" ) unary )* ;
  * unary → ( "!" | "-" ) unary | primary ;
- * primary → NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" | "," comma | ("?" | ":" ) ternary |
- *           ("!=" | "==" ) equality | (">" | ">=" | "<" | "<=" ) comparison | "+" term | ("/" | "*" ) factor;
+ * primary → NUMBER | STRING | IDENTIFIER |"true" | "false" | "nil" | "(" expression ")" | "," comma |
+ *           ("?" | ":" ) ternary | ("!=" | "==" ) equality | (">" | ">=" | "<" | "<=" ) comparison | "+" term |
+ *           ("/" | "*" ) factor;
  */
 
 package syntax_tree;
@@ -20,6 +29,7 @@ import utils.ErrorReporter;
 
 import static lexical_scanner.TokenType.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Parser {
@@ -27,22 +37,77 @@ public class Parser {
     private static class ParseError extends RuntimeException {}
     private final List<Token> tokens;
 
+    private final RunMode mode;
+
     private int current = 0;
 
-    public Parser(List<Token> tokens) {
+    public Parser(List<Token> tokens, RunMode mode) {
         this.tokens = tokens;
+        this.mode = mode;
     }
 
-    public Expr parse() {
-        try {
-            return expression();
-        } catch (ParseError error) {
-            return null;
+    public List<Stmt> parse() {
+        List<Stmt> statements = new ArrayList<>();
+        while(!isAtEnd()) {
+            statements.add(declaration());
         }
+
+        return statements;
     }
 
     private Expr expression() {
         return comma();
+    }
+
+    private Stmt declaration() {
+        try {
+            if(match(VAR)) return varDeclaration();
+
+            return statement();
+        } catch (ParseError error) {
+            synchronize();
+            return null;
+        }
+    }
+
+    private Stmt statement() {
+        if(match(PRINT)) return printStatement();
+        if(match(LEFT_BRACE)) return new Stmt.Block(block());
+        return expressionStatement();
+    }
+
+    private Stmt printStatement() {
+        Expr value = expression();
+        consume(SEMICOLON, "Expected ; after value");
+        return new Stmt.Print(value);
+    }
+
+    private Stmt varDeclaration() {
+        Token name = consume(IDENTIFIER, "Expected variable name");
+        Expr initializer = null;
+        if(match(EQUAL)) {
+            initializer = expression();
+        }
+
+        consume(SEMICOLON, "Expected ; after variable declaration");
+        return new Stmt.Var(name, initializer);
+    }
+
+    private Stmt expressionStatement() {
+        Expr expr = expression();
+        consume(SEMICOLON, "Expected ; after expression");
+        return new Stmt.Expression(expr);
+    }
+
+    private List<Stmt> block() {
+        List<Stmt> statements = new ArrayList<>();
+
+        while(!check(RIGHT_BRACE) && !isAtEnd()) {
+            statements.add(declaration());
+        }
+
+        consume(RIGHT_BRACE, "Expected } at end of block");
+        return statements;
     }
 
 
@@ -60,13 +125,30 @@ public class Parser {
     }
 
     private Expr ternary() {
-        Expr expr = equality();
+        Expr expr = assignment();
 
         if(match(QUESTION)) {
             Expr left = comma();
             consume(COLON, "Expected : after then branch of ternary expression");
             Expr right = ternary();
             expr = new Expr.Ternary(expr, left, right);
+        }
+
+        return expr;
+    }
+
+    private Expr assignment() {
+        Expr expr = equality();
+        if(match(EQUAL)) {
+            Token equals = previous();
+            Expr value =  assignment();
+
+            if(expr instanceof Expr.Variable) {
+                Token name = ((Expr.Variable)expr).name;
+                return new Expr.Assign(name, value);
+            }
+
+            ErrorReporter.getInstance().error(equals, "Invalid assignment target");
         }
 
         return expr;
@@ -170,6 +252,8 @@ public class Parser {
 
         if(match(NUMBER, STRING)) return new Expr.Literal(previous().getLiteral());
 
+        if(match(IDENTIFIER)) return new Expr.Variable(previous());
+
         if(match(LEFT_PAREN)) {
             Expr expr = expression();
             consume(RIGHT_PAREN, "Expected ')' after expression.");
@@ -216,8 +300,12 @@ public class Parser {
     }
 
     private Token consume(TokenType type, String message) {
-        if(check(type)) return advance();
+        if(ignoreSemiColon(type) || check(type)) return advance();
         throw parsingError(peek(), message);
+    }
+
+    private boolean ignoreSemiColon(TokenType type) {
+        return this.mode == RunMode.REPL && type == SEMICOLON;
     }
 
     private ParseError parsingError(Token token, String message) {

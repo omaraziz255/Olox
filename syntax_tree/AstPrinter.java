@@ -1,12 +1,19 @@
 package syntax_tree;
 
+import lexical_scanner.Token;
+
 @SuppressWarnings("unused")
 public class AstPrinter implements Expr.Visitor<String> {
         public String print(Expr expr) {
             return expr.accept(this);
         }
 
-        @Override
+    @Override
+    public String visitAssignExpr(Expr.Assign expr) {
+        return parenthesize("assign " + expr.name.getLexeme() + " ", expr.value);
+    }
+
+    @Override
         public String visitBinaryExpr(Expr.Binary expr) {
             return parenthesize(expr.operator.getLexeme(), expr.left, expr.right);
         }
@@ -32,7 +39,16 @@ public class AstPrinter implements Expr.Visitor<String> {
             return parenthesize(expr.operator.getLexeme(), expr.right);
         }
 
-        private String parenthesize(String name, Expr... expressions) {
+        @Override
+        public String visitVariableExpr(Expr.Variable expr) {
+           return parenthesizeVariable(expr.name);
+        }
+
+        private String parenthesizeVariable(Token name) {
+            return "var " + name.getLiteral().toString();
+        }
+
+    private String parenthesize(String name, Expr... expressions) {
             StringBuilder builder = new StringBuilder();
             builder.append("(").append(name);
             for(Expr expr : expressions) {
