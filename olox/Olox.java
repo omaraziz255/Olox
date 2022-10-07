@@ -5,6 +5,7 @@ import lexical_scanner.Token;
 import syntax_tree.Expr;
 import syntax_tree.Interpreter;
 import syntax_tree.Parser;
+import syntax_tree.Stmt;
 import utils.ErrorReporter;
 
 import java.io.BufferedReader;
@@ -56,10 +57,10 @@ public class Olox {
         Scanner scanner = new Scanner(source);
         List<Token> tokens = scanner.scanTokens();
         Parser parser = new Parser(tokens);
-        Expr expression = parser.parse();
+        List<Stmt> statements = parser.parse();
 
         if(errorReporter.hasBuildError()) return;
 
-        interpreter.interpret(expression);
+        interpreter.interpret(statements);
     }
 }

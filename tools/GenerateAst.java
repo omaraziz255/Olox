@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static tools.ExprDefinition.*;
+import static tools.StmtDefinition.*;
 import static utils.ExitCode.COMMAND_LINE_USAGE_ERROR;
 
 public class GenerateAst {
@@ -23,6 +24,11 @@ public class GenerateAst {
                 LITERAL.expr,
                 TERNARY.expr,
                 UNARY_EXPR.expr
+        ));
+
+        defineAst(outputDir, BASE_STMT.stmt, Arrays.asList(
+                EXPR_STMT.stmt,
+                PRINT_STMT.stmt
         ));
     }
 

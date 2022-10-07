@@ -3,7 +3,9 @@ package syntax_tree;
 import lexical_scanner.Token;
 import utils.ErrorReporter;
 
-public class Interpreter implements Expr.Visitor<Object>{
+import java.util.List;
+
+public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     private Interpreter(){}
 
@@ -84,6 +86,23 @@ public class Interpreter implements Expr.Visitor<Object>{
         return expr.accept(this);
     }
 
+    private void execute(Stmt stmt) {
+        stmt.accept(this);
+    }
+
+    @Override
+    public Void visitExpressionStmt(Stmt.Expression stmt) {
+        evaluate(stmt.expression);
+        return null;
+    }
+
+    @Override
+    public Void visitPrintStmt(Stmt.Print stmt) {
+        Object value = evaluate(stmt.expression);
+        System.out.println(stringify(value));
+        return null;
+    }
+
     @Override
     public Object visitBinaryExpr(Expr.Binary expr) {
         Object left = evaluate(expr.left);
@@ -129,7 +148,7 @@ public class Interpreter implements Expr.Visitor<Object>{
             }
             case SLASH -> {
                 checkNumberOperands(expr.operator, left, right);
-                if((double)right == 0) throw new RuntimeError(expr.operator, "Arithemtic Error: Division by Zero");
+                if((double)right == 0) throw new RuntimeError(expr.operator, "Arithmetic Error: Division by Zero");
                 return (double)left / (double)right;
             }
             case STAR -> {
@@ -146,10 +165,11 @@ public class Interpreter implements Expr.Visitor<Object>{
         throw new RuntimeError(operator, "Operands must be numbers");
     }
 
-    public void interpret(Expr expression) {
+    public void interpret(List<Stmt> statements) {
         try {
-            Object value = evaluate(expression);
-            System.out.println(stringify(value));
+            for(Stmt statement : statements) {
+                execute(statement);
+            }
         } catch (RuntimeError error) {
             ErrorReporter.getInstance().runTimeError(error);
         }
