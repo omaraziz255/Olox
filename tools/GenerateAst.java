@@ -34,7 +34,8 @@ public class GenerateAst {
                 EXPR_STMT.stmt,
                 IF_STMT.stmt,
                 PRINT_STMT.stmt,
-                VARIABLE_STMT.stmt
+                VARIABLE_STMT.stmt,
+                WHILE_STMT.stmt
         ));
     }
 
