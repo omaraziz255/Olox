@@ -7,6 +7,7 @@ public enum ExprDefinition {
     BINARY_EXPR("Binary: Expr left, Token operator, Expr right"),
     GROUPING("Grouping: Expr expression"),
     LITERAL("Literal: Object value"),
+    LOGICAL("Logical: Expr left, Token operator, Expr right"),
     TERNARY("Ternary: Expr condition, Expr left, Expr right"),
     UNARY_EXPR("Unary: Token operator, Expr right"),
     VARIABLE_EXPR("Variable: Token name");

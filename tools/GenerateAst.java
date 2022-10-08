@@ -23,6 +23,7 @@ public class GenerateAst {
                 BINARY_EXPR.expr,
                 GROUPING.expr,
                 LITERAL.expr,
+                LOGICAL.expr,
                 TERNARY.expr,
                 UNARY_EXPR.expr,
                 VARIABLE_EXPR.expr
@@ -31,6 +32,7 @@ public class GenerateAst {
         defineAst(outputDir, BASE_STMT.stmt, Arrays.asList(
                 BLOCK_STMT.stmt,
                 EXPR_STMT.stmt,
+                IF_STMT.stmt,
                 PRINT_STMT.stmt,
                 VARIABLE_STMT.stmt
         ));

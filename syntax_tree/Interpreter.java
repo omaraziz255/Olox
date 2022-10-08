@@ -1,6 +1,7 @@
 package syntax_tree;
 
 import lexical_scanner.Token;
+import lexical_scanner.TokenType;
 import utils.ErrorReporter;
 
 import java.util.List;
@@ -22,6 +23,20 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     @Override
     public Object visitLiteralExpr(Expr.Literal expr) {
         return expr.value;
+    }
+
+    @Override
+    public Object visitLogicalExpr(Expr.Logical expr) {
+        Object left = evaluate(expr.left);
+
+        if(expr.operator.getType() == TokenType.OR) {
+            if(isTrue(left)) return left;
+        }
+        else {
+            if(!isTrue(left)) return left;
+        }
+
+        return evaluate(expr.right);
     }
 
     @Override
@@ -122,6 +137,16 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     public Void visitExpressionStmt(Stmt.Expression stmt) {
         Object value = evaluate(stmt.expression);
         if(this.mode == RunMode.REPL && value != null) System.out.println(stringify(value));
+        return null;
+    }
+
+    @Override
+    public Void visitIfStmt(Stmt.If stmt) {
+        if(isTrue(evaluate(stmt.condition))) {
+            execute(stmt.thenBranch);
+        } else if (stmt.elseBranch != null) {
+            execute(stmt.elseBranch);
+        }
         return null;
     }
 
