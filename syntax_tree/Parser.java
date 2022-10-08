@@ -46,6 +46,7 @@ public class Parser {
     private final RunMode mode;
 
     private int current = 0;
+    private int loopDepth = 0;
 
     public Parser(List<Token> tokens, RunMode mode) {
         this.tokens = tokens;
@@ -77,12 +78,19 @@ public class Parser {
     }
 
     private Stmt statement() {
+        if(match(BREAK)) return breakStatement();
         if(match(FOR)) return forStatement();
         if(match(IF)) return ifStatement();
         if(match(PRINT)) return printStatement();
         if(match(WHILE)) return whileStatement();
         if(match(LEFT_BRACE)) return new Stmt.Block(block());
         return expressionStatement();
+    }
+
+    private Stmt breakStatement() {
+        if(loopDepth == 0) error(previous(), "Break statements can only be used within looping constructs");
+        consume(SEMICOLON, "Expected ; after break statement");
+        return new Stmt.Break();
     }
 
     private Stmt forStatement() {
@@ -108,20 +116,25 @@ public class Parser {
         }
         consume(RIGHT_PAREN, "Expected ) after for clauses");
 
-        Stmt body = statement();
+        try {
+            loopDepth++;
+            Stmt body = statement();
 
-        if(increment != null) {
-            body = new Stmt.Block(Arrays.asList(body, new Stmt.Expression(increment)));
+            if(increment != null) {
+                body = new Stmt.Block(Arrays.asList(body, new Stmt.Expression(increment)));
+            }
+
+            if(condition == null) condition = new Expr.Literal(true);
+            body = new Stmt.While(condition, body);
+
+            if(initializer != null) {
+                body = new Stmt.Block(Arrays.asList(initializer, body));
+            }
+
+            return body;
+        } finally {
+            loopDepth--;
         }
-
-        if(condition == null) condition = new Expr.Literal(true);
-        body = new Stmt.While(condition, body);
-
-        if(initializer != null) {
-            body = new Stmt.Block(Arrays.asList(initializer, body));
-        }
-
-        return body;
     }
 
     private Stmt ifStatement() {
@@ -158,9 +171,13 @@ public class Parser {
         consume(LEFT_PAREN, "Expected ( after while");
         Expr condition = expression();
         consume(RIGHT_PAREN, "Expected ) after while condition");
-        Stmt body = statement();
-
-        return new Stmt.While(condition, body);
+        try {
+            Stmt body = statement();
+            loopDepth++;
+            return new Stmt.While(condition, body);
+        } finally {
+            loopDepth--;
+        }
     }
 
     private Stmt expressionStatement() {

@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import static tools.ExprDefinition.*;
 import static tools.StmtDefinition.*;
@@ -31,6 +32,7 @@ public class GenerateAst {
 
         defineAst(outputDir, BASE_STMT.stmt, Arrays.asList(
                 BLOCK_STMT.stmt,
+                BREAK_STMT.stmt,
                 EXPR_STMT.stmt,
                 IF_STMT.stmt,
                 PRINT_STMT.stmt,
@@ -49,7 +51,7 @@ public class GenerateAst {
                        */""");
         writer.println("package syntax_tree;");
         writer.println();
-        writer.println("import java.util.List;");
+        if(Objects.equals(baseName, "Stmt")) writer.println("import java.util.List;");
         writer.println();
         writer.println("import lexical_scanner.Token;");
         writer.println();
@@ -75,7 +77,7 @@ public class GenerateAst {
 
         writer.println("    " + className + "(" + fieldList + ") {");
 
-        String[] fields = fieldList.split(", ");
+        String[] fields = fieldList.isEmpty() ? new String[0] : fieldList.split(", ");
         for (String field : fields) {
             String name = field.split(" ")[1];
             writer.println("    this." + name + " = " + name + ";");

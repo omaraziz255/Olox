@@ -134,6 +134,11 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     }
 
     @Override
+    public Void visitBreakStmt(Stmt.Break stmt) {
+        throw new BreakException();
+    }
+
+    @Override
     public Void visitExpressionStmt(Stmt.Expression stmt) {
         Object value = evaluate(stmt.expression);
         if(this.mode == RunMode.REPL && value != null) System.out.println(stringify(value));
@@ -170,8 +175,12 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     @Override
     public Void visitWhileStmt(Stmt.While stmt) {
-        while(isTrue(evaluate(stmt.condition))) {
-            execute(stmt.body);
+        try {
+            while (isTrue(evaluate(stmt.condition))) {
+                execute(stmt.body);
+            }
+        } catch (BreakException ignored) {
+
         }
         return null;
     }

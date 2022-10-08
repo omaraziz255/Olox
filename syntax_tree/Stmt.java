@@ -10,6 +10,7 @@ import lexical_scanner.Token;
 abstract public class Stmt {
     public interface Visitor<R> {
     R visitBlockStmt(Block stmt);
+    R visitBreakStmt(Break stmt);
     R visitExpressionStmt(Expression stmt);
     R visitIfStmt(If stmt);
     R visitPrintStmt(Print stmt);
@@ -27,6 +28,17 @@ abstract public class Stmt {
     }
 
     public final List<Stmt> statements;
+
+}
+ static public class Break extends Stmt {
+    Break() {
+    }
+
+    @Override
+    public <R> R accept(Visitor<R> visitor) {
+        return visitor.visitBreakStmt(this);
+    }
+
 
 }
  static public class Expression extends Stmt {
@@ -103,5 +115,6 @@ abstract public class Stmt {
 
 }
 
+    @SuppressWarnings("UnusedReturnValue")
     public abstract <R> R accept(Visitor<R> visitor);
 }

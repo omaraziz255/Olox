@@ -3,6 +3,7 @@ package tools;
 public enum StmtDefinition {
     BASE_STMT("Stmt"),
     BLOCK_STMT("Block: List<Stmt> statements"),
+    BREAK_STMT("Break: "),
     EXPR_STMT("Expression: Expr expression"),
     IF_STMT("If: Expr condition, Stmt thenBranch, Stmt elseBranch"),
     PRINT_STMT("Print: Expr expression"),
