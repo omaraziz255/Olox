@@ -3,14 +3,19 @@
  * program -> declaration* EOF;
  * declaration -> varDecl | statement;
  * varDecl -> "var" IDENTIFIER ( "=" expression)? ";";
- * statement -> exprStmt | printStmt | block;
+ * statement -> exprStmt | forStmt | ifStmt | printStmt | whileStmt | block;
  * block -> "{" declaration* "}";
  * exprStmt -> expression ";" ;
+ * forStmt -> "for" "(" ( varDecl | exprStmt | ";" ) expression? ";" expression? ")" statement;
+ * ifStmt -> "if" "(" expression ")" statement ( "else" statement )? ;
  * printStmt -> "print" expression ";"
+ * whileStmt -> "while" "(" expression ")" statement;
  * expression → comma;
  * comma -> ternary ( "," ternary )* ;
  * ternary -> assignment ( "?" comma ":" ternary)?
- * assignment -> IDENTIFIER "=" assignment | equality;
+ * assignment -> IDENTIFIER "=" assignment | logic_or;
+ * logic_or -> logic_and ( "or" logic_and)*;
+ * logic_and -> equality ( "and" equality)*;
  * equality → comparison ( ( "!=" | "==" ) comparison )* ;
  * comparison → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
  * term → factor ( ( "-" | "+" ) factor )* ;
@@ -30,6 +35,7 @@ import utils.ErrorReporter;
 import static lexical_scanner.TokenType.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Parser {
@@ -40,6 +46,7 @@ public class Parser {
     private final RunMode mode;
 
     private int current = 0;
+    private int loopDepth = 0;
 
     public Parser(List<Token> tokens, RunMode mode) {
         this.tokens = tokens;
@@ -71,9 +78,76 @@ public class Parser {
     }
 
     private Stmt statement() {
+        if(match(BREAK)) return breakStatement();
+        if(match(FOR)) return forStatement();
+        if(match(IF)) return ifStatement();
         if(match(PRINT)) return printStatement();
+        if(match(WHILE)) return whileStatement();
         if(match(LEFT_BRACE)) return new Stmt.Block(block());
         return expressionStatement();
+    }
+
+    private Stmt breakStatement() {
+        if(loopDepth == 0) error(previous(), "Break statements can only be used within looping constructs");
+        consume(SEMICOLON, "Expected ; after break statement");
+        return new Stmt.Break();
+    }
+
+    private Stmt forStatement() {
+        consume(LEFT_PAREN, "Expected ( after for");
+        Stmt initializer;
+        if(match(SEMICOLON)) {
+            initializer = null;
+        } else if (match(VAR)) {
+            initializer = varDeclaration();
+        } else {
+            initializer = expressionStatement();
+        }
+
+        Expr condition = null;
+        if(!check(SEMICOLON)) {
+            condition = expression();
+        }
+        consume(SEMICOLON, "Expected ; after loop condition");
+
+        Expr increment = null;
+        if(!check(RIGHT_PAREN)) {
+            increment = expression();
+        }
+        consume(RIGHT_PAREN, "Expected ) after for clauses");
+
+        try {
+            loopDepth++;
+            Stmt body = statement();
+
+            if(increment != null) {
+                body = new Stmt.Block(Arrays.asList(body, new Stmt.Expression(increment)));
+            }
+
+            if(condition == null) condition = new Expr.Literal(true);
+            body = new Stmt.While(condition, body);
+
+            if(initializer != null) {
+                body = new Stmt.Block(Arrays.asList(initializer, body));
+            }
+
+            return body;
+        } finally {
+            loopDepth--;
+        }
+    }
+
+    private Stmt ifStatement() {
+        consume(LEFT_PAREN, "Expected ( after if");
+        Expr condition = expression();
+        consume(RIGHT_PAREN, "Expected ) after if condition");
+
+        Stmt thenBranch = statement();
+        Stmt elseBranch = null;
+        if(match(ELSE)) {
+            elseBranch = statement();
+        }
+        return new Stmt.If(condition, thenBranch, elseBranch);
     }
 
     private Stmt printStatement() {
@@ -91,6 +165,19 @@ public class Parser {
 
         consume(SEMICOLON, "Expected ; after variable declaration");
         return new Stmt.Var(name, initializer);
+    }
+
+    private Stmt whileStatement() {
+        consume(LEFT_PAREN, "Expected ( after while");
+        Expr condition = expression();
+        consume(RIGHT_PAREN, "Expected ) after while condition");
+        try {
+            Stmt body = statement();
+            loopDepth++;
+            return new Stmt.While(condition, body);
+        } finally {
+            loopDepth--;
+        }
     }
 
     private Stmt expressionStatement() {
@@ -138,7 +225,7 @@ public class Parser {
     }
 
     private Expr assignment() {
-        Expr expr = equality();
+        Expr expr = or();
         if(match(EQUAL)) {
             Token equals = previous();
             Expr value =  assignment();
@@ -149,6 +236,28 @@ public class Parser {
             }
 
             ErrorReporter.getInstance().error(equals, "Invalid assignment target");
+        }
+
+        return expr;
+    }
+
+    private Expr or() {
+        Expr expr = and();
+        while (match(OR)) {
+            Token operator = previous();
+            Expr right = and();
+            expr = new Expr.Logical(expr, operator, right);
+        }
+
+        return expr;
+    }
+
+    private Expr and() {
+        Expr expr = equality();
+        while (match(AND)) {
+            Token operator = previous();
+            Expr right = equality();
+            expr = new Expr.Logical(expr, operator, right);
         }
 
         return expr;

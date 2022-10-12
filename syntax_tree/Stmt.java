@@ -10,9 +10,12 @@ import lexical_scanner.Token;
 abstract public class Stmt {
     public interface Visitor<R> {
     R visitBlockStmt(Block stmt);
+    R visitBreakStmt(Break stmt);
     R visitExpressionStmt(Expression stmt);
+    R visitIfStmt(If stmt);
     R visitPrintStmt(Print stmt);
     R visitVarStmt(Var stmt);
+    R visitWhileStmt(While stmt);
     }
  static public class Block extends Stmt {
     Block(List<Stmt> statements) {
@@ -27,6 +30,17 @@ abstract public class Stmt {
     public final List<Stmt> statements;
 
 }
+ static public class Break extends Stmt {
+    Break() {
+    }
+
+    @Override
+    public <R> R accept(Visitor<R> visitor) {
+        return visitor.visitBreakStmt(this);
+    }
+
+
+}
  static public class Expression extends Stmt {
     Expression(Expr expression) {
     this.expression = expression;
@@ -38,6 +52,23 @@ abstract public class Stmt {
     }
 
     public final Expr expression;
+
+}
+ static public class If extends Stmt {
+    If(Expr condition, Stmt thenBranch, Stmt elseBranch) {
+    this.condition = condition;
+    this.thenBranch = thenBranch;
+    this.elseBranch = elseBranch;
+    }
+
+    @Override
+    public <R> R accept(Visitor<R> visitor) {
+        return visitor.visitIfStmt(this);
+    }
+
+    public final Expr condition;
+    public final Stmt thenBranch;
+    public final Stmt elseBranch;
 
 }
  static public class Print extends Stmt {
@@ -68,6 +99,22 @@ abstract public class Stmt {
     public final Expr initializer;
 
 }
+ static public class While extends Stmt {
+    While(Expr condition, Stmt body) {
+    this.condition = condition;
+    this.body = body;
+    }
 
+    @Override
+    public <R> R accept(Visitor<R> visitor) {
+        return visitor.visitWhileStmt(this);
+    }
+
+    public final Expr condition;
+    public final Stmt body;
+
+}
+
+    @SuppressWarnings("UnusedReturnValue")
     public abstract <R> R accept(Visitor<R> visitor);
 }

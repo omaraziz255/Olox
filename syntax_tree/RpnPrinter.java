@@ -30,6 +30,12 @@ public class RpnPrinter implements Expr.Visitor<String> {
         if(expr.value == null) return "nil";
         return expr.value.toString();
     }
+
+    @Override
+    public String visitLogicalExpr(Expr.Logical expr) {
+        return expr.left.accept(this) + " " + expr.right.accept(this) + " " + expr.operator.getLexeme();
+    }
+
     @Override
     public String visitTernaryExpr(Expr.Ternary expr) {
         return expr.condition.accept(this) + " " + expr.left.accept(this) + " " +
