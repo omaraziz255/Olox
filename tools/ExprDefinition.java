@@ -5,6 +5,7 @@ public enum ExprDefinition {
     ASSIGN_EXPR("Assign: Token name, Expr value"),
     BASE_EXPR("Expr"),
     BINARY_EXPR("Binary: Expr left, Token operator, Expr right"),
+    CALL_EXPR("Call: Expr callee, Token paren, List<Expr> arguments"),
     GROUPING("Grouping: Expr expression"),
     LITERAL("Literal: Object value"),
     LOGICAL("Logical: Expr left, Token operator, Expr right"),

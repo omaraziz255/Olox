@@ -1,9 +1,13 @@
 /**
  * This Parser parses the following grammar for Olox
  * program -> declaration* EOF;
- * declaration -> varDecl | statement;
+ * declaration -> funDecl | varDecl | statement;
+ * funDecl -> "fun" function;
+ * function -> IDENTIFIER "(" parameters? ")" block;
+ * parameters -> IDENTIFIER ( "," IDENTIFIER)* ;
  * varDecl -> "var" IDENTIFIER ( "=" expression)? ";";
- * statement -> exprStmt | forStmt | ifStmt | printStmt | whileStmt | block;
+ * statement -> exprStmt | forStmt | ifStmt | printStmt | returnStmt | whileStmt | block;
+ * returnStmt -> "return" expression? ";" ;
  * block -> "{" declaration* "}";
  * exprStmt -> expression ";" ;
  * forStmt -> "for" "(" ( varDecl | exprStmt | ";" ) expression? ";" expression? ")" statement;
@@ -20,7 +24,8 @@
  * comparison → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
  * term → factor ( ( "-" | "+" ) factor )* ;
  * factor → unary ( ( "/" | "*" ) unary )* ;
- * unary → ( "!" | "-" ) unary | primary ;
+ * unary → ( "!" | "-" ) unary | call ;
+ * call -> primary ( "(" equality? ")" )* ;
  * primary → NUMBER | STRING | IDENTIFIER |"true" | "false" | "nil" | "(" expression ")" | "," comma |
  *           ("?" | ":" ) ternary | ("!=" | "==" ) equality | (">" | ">=" | "<" | "<=" ) comparison | "+" term |
  *           ("/" | "*" ) factor;
@@ -68,6 +73,7 @@ public class Parser {
 
     private Stmt declaration() {
         try {
+            if(match(FUN)) return function(FunctionType.FUNCTION);
             if(match(VAR)) return varDeclaration();
 
             return statement();
@@ -82,6 +88,7 @@ public class Parser {
         if(match(FOR)) return forStatement();
         if(match(IF)) return ifStatement();
         if(match(PRINT)) return printStatement();
+        if(match(RETURN)) return returnStatement();
         if(match(WHILE)) return whileStatement();
         if(match(LEFT_BRACE)) return new Stmt.Block(block());
         return expressionStatement();
@@ -156,6 +163,17 @@ public class Parser {
         return new Stmt.Print(value);
     }
 
+    private Stmt returnStatement() {
+        Token keyword = previous();
+        Expr value = null;
+        if(!check(SEMICOLON)) {
+            value = expression();
+        }
+
+        consume(SEMICOLON,  "Expected ; after return statement");
+        return new Stmt.Return(keyword, value);
+    }
+
     private Stmt varDeclaration() {
         Token name = consume(IDENTIFIER, "Expected variable name");
         Expr initializer = null;
@@ -186,6 +204,27 @@ public class Parser {
         return new Stmt.Expression(expr);
     }
 
+    private Stmt.Function function(FunctionType type) {
+        Token name = consume(IDENTIFIER, "Expected " + type.type + " name");
+        consume(LEFT_PAREN, "Expected ( after " + type.type + " name");
+        List<Token> parameters = new ArrayList<>();
+        if(!check(RIGHT_PAREN)) {
+            do {
+                if(parameters.size() >= 255) {
+                    error(peek(), "Can't have more than 255 parameters");
+                }
+
+                parameters.add(consume(IDENTIFIER, "Expected parameter name"));
+            } while (match(COMMA));
+        }
+
+        consume(RIGHT_PAREN, "Expected ) after parameter list");
+
+        consume(LEFT_BRACE, "Expected { before " + type.type + " body");
+        List<Stmt> body = block();
+        return new Stmt.Function(name, parameters, body);
+    }
+
     private List<Stmt> block() {
         List<Stmt> statements = new ArrayList<>();
 
@@ -197,8 +236,6 @@ public class Parser {
         return statements;
     }
 
-
-    /*TODO Handle commas during function argument parsing */
     private Expr comma() {
         Expr expr = ternary();
 
@@ -351,7 +388,36 @@ public class Parser {
             return new Expr.Unary(operator, right);
         }
 
-        return primary();
+        return call();
+    }
+
+    private Expr finishCall(Expr callee) {
+        List<Expr> arguments = new ArrayList<>();
+        if (!check(RIGHT_PAREN)) {
+            do {
+                if (arguments.size() >= 255) {
+                    error(peek(), "Can't have more than 255 arguments to a function");
+                }
+                arguments.add(equality());
+            } while (match(COMMA));
+        }
+
+        Token paren = consume(RIGHT_PAREN, "Expected ) after function call");
+        return new Expr.Call(callee, paren, arguments);
+    }
+
+    private Expr call() {
+        Expr expr = primary();
+
+        while(true) {
+            if(match(LEFT_PAREN)) {
+                expr = finishCall(expr);
+            } else {
+                break;
+            }
+        }
+
+        return expr;
     }
 
     private Expr primary() {

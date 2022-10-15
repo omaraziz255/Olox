@@ -5,7 +5,6 @@ import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 import static tools.ExprDefinition.*;
 import static tools.StmtDefinition.*;
@@ -22,6 +21,7 @@ public class GenerateAst {
         defineAst(outputDir, BASE_EXPR.expr, Arrays.asList(
                 ASSIGN_EXPR.expr,
                 BINARY_EXPR.expr,
+                CALL_EXPR.expr,
                 GROUPING.expr,
                 LITERAL.expr,
                 LOGICAL.expr,
@@ -34,8 +34,10 @@ public class GenerateAst {
                 BLOCK_STMT.stmt,
                 BREAK_STMT.stmt,
                 EXPR_STMT.stmt,
+                FUNC_STMT.stmt,
                 IF_STMT.stmt,
                 PRINT_STMT.stmt,
+                RETURN_STMT.stmt,
                 VARIABLE_STMT.stmt,
                 WHILE_STMT.stmt
         ));
@@ -51,7 +53,7 @@ public class GenerateAst {
                        */""");
         writer.println("package syntax_tree;");
         writer.println();
-        if(Objects.equals(baseName, "Stmt")) writer.println("import java.util.List;");
+        writer.println("import java.util.List;");
         writer.println();
         writer.println("import lexical_scanner.Token;");
         writer.println();

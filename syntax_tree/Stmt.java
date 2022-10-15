@@ -12,8 +12,10 @@ abstract public class Stmt {
     R visitBlockStmt(Block stmt);
     R visitBreakStmt(Break stmt);
     R visitExpressionStmt(Expression stmt);
+    R visitFunctionStmt(Function stmt);
     R visitIfStmt(If stmt);
     R visitPrintStmt(Print stmt);
+    R visitReturnStmt(Return stmt);
     R visitVarStmt(Var stmt);
     R visitWhileStmt(While stmt);
     }
@@ -54,6 +56,23 @@ abstract public class Stmt {
     public final Expr expression;
 
 }
+ static public class Function extends Stmt {
+    Function(Token name, List<Token> params, List<Stmt> body) {
+    this.name = name;
+    this.params = params;
+    this.body = body;
+    }
+
+    @Override
+    public <R> R accept(Visitor<R> visitor) {
+        return visitor.visitFunctionStmt(this);
+    }
+
+    public final Token name;
+    public final List<Token> params;
+    public final List<Stmt> body;
+
+}
  static public class If extends Stmt {
     If(Expr condition, Stmt thenBranch, Stmt elseBranch) {
     this.condition = condition;
@@ -82,6 +101,21 @@ abstract public class Stmt {
     }
 
     public final Expr expression;
+
+}
+ static public class Return extends Stmt {
+    Return(Token keyword, Expr value) {
+    this.keyword = keyword;
+    this.value = value;
+    }
+
+    @Override
+    public <R> R accept(Visitor<R> visitor) {
+        return visitor.visitReturnStmt(this);
+    }
+
+    public final Token keyword;
+    public final Expr value;
 
 }
  static public class Var extends Stmt {
@@ -115,6 +149,5 @@ abstract public class Stmt {
 
 }
 
-    @SuppressWarnings("UnusedReturnValue")
     public abstract <R> R accept(Visitor<R> visitor);
 }
