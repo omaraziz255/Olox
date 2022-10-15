@@ -3,28 +3,31 @@ package syntax_tree;
 import java.util.List;
 
 public class LoxFunction implements LoxCallable {
-    private final Stmt.Function declaration;
+    private final String name;
+    private final Expr.Function declaration;
     private final Environment closure;
-    LoxFunction(Stmt.Function declaration, Environment closure) {
+    LoxFunction(String name, Expr.Function declaration, Environment closure) {
+        this.name = name;
         this.declaration = declaration;
         this.closure = closure;
     }
 
     @Override
     public String toString() {
-        return "<fn " + declaration.name.getLexeme() + ">";
+        if(name == null) return "<fn>";
+        return "<fn " + name + ">";
     }
 
     @Override
     public int arity() {
-        return declaration.params.size();
+        return declaration.parameters.size();
     }
 
     @Override
     public Object call(Interpreter interpreter, List<Object> arguments) {
         Environment environment = new Environment(closure);
-        for(int i = 0; i < declaration.params.size(); i++) {
-            environment.define(declaration.params.get(i).getLexeme(), arguments.get(i));
+        for(int i = 0; i < declaration.parameters.size(); i++) {
+            environment.define(declaration.parameters.get(i).getLexeme(), arguments.get(i));
         }
 
         try {

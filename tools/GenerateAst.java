@@ -22,6 +22,7 @@ public class GenerateAst {
                 ASSIGN_EXPR.expr,
                 BINARY_EXPR.expr,
                 CALL_EXPR.expr,
+                FUNC_EXPR.expr,
                 GROUPING.expr,
                 LITERAL.expr,
                 LOGICAL.expr,

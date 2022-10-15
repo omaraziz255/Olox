@@ -73,7 +73,10 @@ public class Parser {
 
     private Stmt declaration() {
         try {
-            if(match(FUN)) return function(FunctionType.FUNCTION);
+            if(check(FUN) && checkNext(IDENTIFIER)) {
+                consume(FUN, null);
+                return function(FunctionType.FUNCTION);
+            }
             if(match(VAR)) return varDeclaration();
 
             return statement();
@@ -206,6 +209,10 @@ public class Parser {
 
     private Stmt.Function function(FunctionType type) {
         Token name = consume(IDENTIFIER, "Expected " + type.type + " name");
+        return new Stmt.Function(name, functionBody(type));
+    }
+
+    private Expr.Function functionBody(FunctionType type) {
         consume(LEFT_PAREN, "Expected ( after " + type.type + " name");
         List<Token> parameters = new ArrayList<>();
         if(!check(RIGHT_PAREN)) {
@@ -222,7 +229,7 @@ public class Parser {
 
         consume(LEFT_BRACE, "Expected { before " + type.type + " body");
         List<Stmt> body = block();
-        return new Stmt.Function(name, parameters, body);
+        return new Expr.Function(parameters, body);
     }
 
     private List<Stmt> block() {
@@ -471,12 +478,22 @@ public class Parser {
             return null;
         }
 
+        if(match(FUN)) {
+            return functionBody(FunctionType.FUNCTION);
+        }
+
         throw parsingError(peek(), "Expected Expression.");
     }
 
     private Token consume(TokenType type, String message) {
         if(ignoreSemiColon(type) || check(type)) return advance();
         throw parsingError(peek(), message);
+    }
+
+    private boolean checkNext(TokenType tokenType) {
+        if(isAtEnd()) return false;
+        if(tokens.get(current + 1).getType() == EOF) return false;
+        return tokens.get(current + 1).getType() == tokenType;
     }
 
     private boolean ignoreSemiColon(TokenType type) {

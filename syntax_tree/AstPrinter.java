@@ -23,7 +23,12 @@ public class AstPrinter implements Expr.Visitor<String> {
             return parenthesize("call " + expr.callee, expr.arguments.toArray(new Expr[0]));
         }
 
-    @Override
+        @Override
+        public String visitFunctionExpr(Expr.Function expr) {
+            return parenthesize("lambda fn");
+        }
+
+        @Override
         public String visitGroupingExpr(Expr.Grouping expr) {
             return parenthesize("group", expr.expression);
         }
