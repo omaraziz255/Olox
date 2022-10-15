@@ -21,6 +21,23 @@ public class RpnPrinter implements Expr.Visitor<String> {
     }
 
     @Override
+    public String visitCallExpr(Expr.Call expr) {
+        StringBuilder callRPn = new StringBuilder("( ");
+        for(int i = 0; i < expr.arguments.size(); i++) {
+            callRPn.append(expr.arguments.get(i).accept(this));
+            if(i < expr.arguments.size() - 1) callRPn.append(", ");
+        }
+        callRPn.append(") ");
+        callRPn.append(expr.callee);
+        return callRPn.toString();
+    }
+
+    @Override
+    public String visitFunctionExpr(Expr.Function expr) {
+        return "lambda";
+    }
+
+    @Override
     public String visitGroupingExpr(Expr.Grouping expr) {
         return expr.expression.accept(this);
     }
