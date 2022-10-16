@@ -1,4 +1,4 @@
-package syntax_tree;
+package utils;
 
 public enum FunctionType {
     FUNCTION("function");

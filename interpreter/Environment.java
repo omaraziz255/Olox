@@ -1,5 +1,6 @@
-package syntax_tree;
+package interpreter;
 
+import exceptions.RuntimeError;
 import lexical_scanner.Token;
 
 import java.util.HashMap;

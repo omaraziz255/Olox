@@ -1,4 +1,7 @@
-package syntax_tree;
+package interpreter;
+
+import parser.Expr;
+import exceptions.Return;
 
 import java.util.List;
 
@@ -33,7 +36,7 @@ public class LoxFunction implements LoxCallable {
         try {
             interpreter.executeBlock(declaration.body, environment);
         } catch (Return returnValue) {
-            return returnValue.value;
+            return returnValue.getValue();
         }
 
         return null;

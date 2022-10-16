@@ -1,9 +1,11 @@
 package olox;
 
+import parser.Parser;
 import lexical_scanner.Scanner;
 import lexical_scanner.Token;
-import syntax_tree.*;
+import interpreter.*;
 import utils.ErrorReporter;
+import utils.RunMode;
 
 import java.io.BufferedReader;
 import java.io.IOException;

@@ -1,6 +1,7 @@
-package syntax_tree;
+package tools;
 
 import lexical_scanner.TokenType;
+import parser.Expr;
 
 import java.util.Objects;
 

@@ -1,4 +1,4 @@
-package syntax_tree;
+package interpreter;
 
 import java.util.List;
 
