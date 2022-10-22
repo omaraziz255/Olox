@@ -14,8 +14,24 @@ import java.util.Stack;
 
 public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     private final Interpreter interpreter;
-    private final Stack<Map<String, Boolean>> scopes = new Stack<>();
+    private final Stack<Map<String, Variable>> scopes = new Stack<>();
     private FunctionType currentFunction = FunctionType.NONE;
+
+    private static class Variable {
+        final Token name;
+        VariableState state;
+
+        private Variable(Token name, VariableState state) {
+            this.name = name;
+            this.state = state;
+        }
+    }
+
+    private enum VariableState {
+        DECLARED,
+        DEFINED,
+        READ
+    }
 
     public Resolver(Interpreter interpreter) {
         this.interpreter = interpreter;
@@ -106,7 +122,7 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     @Override
     public Void visitAssignExpr(Expr.Assign expr) {
         resolve(expr.value);
-        resolveLocal(expr, expr.name);
+        resolveLocal(expr, expr.name, false);
         return null;
     }
 
@@ -175,11 +191,12 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 
     @Override
     public Void visitVariableExpr(Expr.Variable expr) {
-        if(!scopes.isEmpty() && scopes.peek().get(expr.name.getLexeme()) == Boolean.FALSE) {
+        if(!scopes.isEmpty() && scopes.peek().containsKey(expr.name.getLexeme()) &&
+            scopes.peek().get(expr.name.getLexeme()).state == VariableState.DECLARED ) {
             ErrorReporter.getInstance().error(expr.name, "Can't read local variable in its own initializer");
         }
 
-        resolveLocal(expr, expr.name);
+        resolveLocal(expr, expr.name, true);
         return null;
     }
 
@@ -192,32 +209,41 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     }
 
     private void beginScope() {
-        scopes.push(new HashMap<String, Boolean>());
+        scopes.push(new HashMap<String, Variable>());
     }
 
     private void endScope() {
-        scopes.pop();
+        Map<String,Variable> scope = scopes.pop();
+        for(Map.Entry<String, Variable> entry : scope.entrySet()) {
+            if(entry.getValue().state == VariableState.DEFINED) {
+                ErrorReporter.getInstance().error(entry.getValue().name, "Local variable is never used");
+            }
+        }
     }
 
     private void declare(Token name) {
         if(scopes.isEmpty()) return;
 
-        Map<String, Boolean> scope = scopes.peek();
+        Map<String, Variable> scope = scopes.peek();
         if(scope.containsKey(name.getLexeme())) {
             ErrorReporter.getInstance().error(name, "Variable with this name already declared in this scope");
         }
-        scope.put(name.getLexeme(), false);
+        scope.put(name.getLexeme(), new Variable(name, VariableState.DECLARED));
     }
 
     private void define(Token name) {
         if(scopes.isEmpty()) return;
-        scopes.peek().put(name.getLexeme(), true);
+        scopes.peek().get(name.getLexeme()).state = VariableState.DEFINED;
     }
 
-    private void resolveLocal(Expr expr, Token name) {
+    private void resolveLocal(Expr expr, Token name, boolean isRead) {
         for(int i = scopes.size() - 1; i >= 0; i--) {
             if(scopes.get(i).containsKey(name.getLexeme())) {
                 interpreter.resolve(expr, scopes.size() - 1 - i);
+
+                if(isRead) {
+                    scopes.get(i).get(name.getLexeme()).state = VariableState.READ;
+                }
                 return;
             }
         }
