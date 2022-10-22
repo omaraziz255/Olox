@@ -4,6 +4,7 @@ import parser.Parser;
 import lexical_scanner.Scanner;
 import lexical_scanner.Token;
 import interpreter.*;
+import resolver.Resolver;
 import utils.ErrorReporter;
 import utils.RunMode;
 
@@ -57,6 +58,11 @@ public class Olox {
         List<Token> tokens = scanner.scanTokens();
         Parser parser = new Parser(tokens, mode);
         List<Stmt> statements = parser.parse();
+
+        if(errorReporter.hasBuildError()) return;
+
+        Resolver resolver = new Resolver(interpreter);
+        resolver.resolve(statements);
 
         if(errorReporter.hasBuildError()) return;
 
