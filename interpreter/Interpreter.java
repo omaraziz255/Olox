@@ -1,20 +1,29 @@
-package syntax_tree;
+package interpreter;
 
+import parser.Expr;
+import exceptions.BreakException;
+import exceptions.Return;
+import exceptions.RuntimeError;
 import lexical_scanner.Token;
 import lexical_scanner.TokenType;
 import utils.ErrorReporter;
+import utils.RunMode;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
-    final Environment globals = new Environment();
-    private Environment environment = globals;
+    final Map<String, Object> globals = new HashMap<>();
+    private Environment environment;
+    private final Map<Expr, Integer> locals = new HashMap<>();
+    private final Map<Expr, Integer> slots = new HashMap<>();
 
     private RunMode mode = RunMode.FILE;
 
     private Interpreter(){
-        globals.define("clock", new LoxCallable() {
+        globals.put("clock", new LoxCallable() {
             @Override
             public int arity() {
                 return 0;
@@ -81,7 +90,20 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     @Override
     public Object visitVariableExpr(Expr.Variable expr) {
-        return environment.get(expr.name);
+        return lookUpVariable(expr.name, expr);
+    }
+
+    private Object lookUpVariable(Token name, Expr expr) {
+        Integer distance = locals.get(expr);
+        if(distance != null) {
+            return environment.getAt(distance, slots.get(expr));
+        } else {
+            if(globals.containsKey(name.getLexeme())) {
+                return globals.get(name.getLexeme());
+            } else {
+                throw new RuntimeError(name, "Undefined variable " + name.getLexeme() + " .");
+            }
+        }
     }
 
     private void checkNumberOperand(Token operator, Object operand) {
@@ -130,6 +152,11 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         stmt.accept(this);
     }
 
+    public void resolve(Expr expr, int depth, int slot) {
+        locals.put(expr, depth);
+        slots.put(expr, slot);
+    }
+
     void executeBlock(List<Stmt> statements, Environment environment) {
         Environment previous = this.environment;
         try {
@@ -163,9 +190,16 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     @Override
     public Void visitFunctionStmt(Stmt.Function stmt) {
-        String fname = stmt.name.getLexeme();
-        environment.define(fname, new LoxFunction(fname, stmt.function, environment));
+        define(stmt.name, new LoxFunction(stmt.name.getLexeme() ,stmt.function, environment));
         return null;
+    }
+
+    private void define(Token name, Object value) {
+        if(environment != null) {
+            environment.define(value);
+        } else {
+            globals.put(name.getLexeme(), value);
+        }
     }
 
     @Override
@@ -200,7 +234,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
             value = evaluate(stmt.initializer);
             if(this.mode == RunMode.REPL) System.out.println(stmt.name.getLexeme() + " = " + stringify(value));
         }
-        environment.define(stmt.name.getLexeme(), value);
+       define(stmt.name, value);
         return null;
     }
 
@@ -219,7 +253,18 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     @Override
     public Object visitAssignExpr(Expr.Assign expr) {
         Object value = evaluate(expr.value);
-        environment.assign(expr.name, value);
+
+        Integer distance = locals.get(expr);
+        if(distance != null) {
+            environment.assignAt(distance, slots.get(expr), value);
+        }
+        else {
+            if(globals.containsKey(expr.name.getLexeme())) {
+                globals.put(expr.name.getLexeme(), value);
+            } else {
+                throw new RuntimeError(expr.name, "Undefined variable " + expr.name.getLexeme() + " .");
+            }
+        }
         return value;
     }
 

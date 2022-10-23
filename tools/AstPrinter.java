@@ -1,6 +1,7 @@
-package syntax_tree;
+package tools;
 
 import lexical_scanner.Token;
+import parser.Expr;
 
 @SuppressWarnings("unused")
 public class AstPrinter implements Expr.Visitor<String> {

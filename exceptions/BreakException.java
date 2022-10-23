@@ -1,3 +1,3 @@
-package syntax_tree;
+package exceptions;
 
 public class BreakException extends RuntimeException {}

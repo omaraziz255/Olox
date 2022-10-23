@@ -2,7 +2,7 @@ package utils;
 
 import lexical_scanner.Token;
 import lexical_scanner.TokenType;
-import syntax_tree.RuntimeError;
+import exceptions.RuntimeError;
 
 public class ErrorReporter {
     private boolean hadBuildError = false;
