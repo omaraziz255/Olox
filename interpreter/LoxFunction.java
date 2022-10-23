@@ -30,7 +30,7 @@ public class LoxFunction implements LoxCallable {
     public Object call(Interpreter interpreter, List<Object> arguments) {
         Environment environment = new Environment(closure);
         for(int i = 0; i < declaration.parameters.size(); i++) {
-            environment.define(declaration.parameters.get(i).getLexeme(), arguments.get(i));
+            environment.define(arguments.get(i));
         }
 
         try {

@@ -20,10 +20,12 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     private static class Variable {
         final Token name;
         VariableState state;
+        final int slot;
 
-        private Variable(Token name, VariableState state) {
+        private Variable(Token name, VariableState state, int slot) {
             this.name = name;
             this.state = state;
+            this.slot = slot;
         }
     }
 
@@ -209,7 +211,7 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     }
 
     private void beginScope() {
-        scopes.push(new HashMap<String, Variable>());
+        scopes.push(new HashMap<>());
     }
 
     private void endScope() {
@@ -228,7 +230,7 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
         if(scope.containsKey(name.getLexeme())) {
             ErrorReporter.getInstance().error(name, "Variable with this name already declared in this scope");
         }
-        scope.put(name.getLexeme(), new Variable(name, VariableState.DECLARED));
+        scope.put(name.getLexeme(), new Variable(name, VariableState.DECLARED, scope.size()));
     }
 
     private void define(Token name) {
@@ -239,7 +241,7 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     private void resolveLocal(Expr expr, Token name, boolean isRead) {
         for(int i = scopes.size() - 1; i >= 0; i--) {
             if(scopes.get(i).containsKey(name.getLexeme())) {
-                interpreter.resolve(expr, scopes.size() - 1 - i);
+                interpreter.resolve(expr, scopes.size() - 1 - i, scopes.get(i).get(name.getLexeme()).slot);
 
                 if(isRead) {
                     scopes.get(i).get(name.getLexeme()).state = VariableState.READ;
