@@ -1,18 +1,11 @@
 package interpreter;
 
-import exceptions.RuntimeError;
-import lexical_scanner.Token;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class Environment {
     final Environment enclosing;
     private final List<Object> values = new ArrayList<>();
-
-    public Environment() {
-        enclosing = null;
-    }
 
     Environment(Environment enclosing) {
         this.enclosing = enclosing;
@@ -21,6 +14,8 @@ public class Environment {
     void define(Object value) {
         values.add(value);
     }
+
+    int getSize() { return values.size(); }
 
     Environment ancestor(int distance) {
         Environment environment = this;
@@ -44,7 +39,7 @@ public class Environment {
     public String toString() {
         String result = values.toString();
         if(enclosing != null) {
-            result += "->" + enclosing.toString();
+            result += "->" + enclosing;
         }
 
         return result;

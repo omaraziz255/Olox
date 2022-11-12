@@ -29,7 +29,12 @@ public class AstPrinter implements Expr.Visitor<String> {
             return parenthesize("lambda fn");
         }
 
-        @Override
+    @Override
+    public String visitGetExpr(Expr.Get expr) {
+        return parenthesize("get " + expr.name.getLexeme());
+    }
+
+    @Override
         public String visitGroupingExpr(Expr.Grouping expr) {
             return parenthesize("group", expr.expression);
         }
@@ -45,12 +50,22 @@ public class AstPrinter implements Expr.Visitor<String> {
             return parenthesize(expr.operator.getLexeme(), expr.left, expr.right);
         }
 
-        @Override
+    @Override
+    public String visitSetExpr(Expr.Set expr) {
+        return parenthesize("assign " + expr.name.getLexeme() + " ", expr.value);
+    }
+
+    @Override
         public String visitTernaryExpr(Expr.Ternary expr) {
             return parenthesizeTernary(expr);
         }
 
-        @Override
+    @Override
+    public String visitThisExpr(Expr.This expr) {
+        return parenthesizeVariable(expr.keyword);
+    }
+
+    @Override
         public String visitUnaryExpr(Expr.Unary expr) {
             return parenthesize(expr.operator.getLexeme(), expr.right);
         }

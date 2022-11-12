@@ -39,6 +39,16 @@ public class RpnPrinter implements Expr.Visitor<String> {
     }
 
     @Override
+    public String visitGetExpr(Expr.Get expr) {
+        return "." + expr.name + " " + expr.object.accept(this);
+    }
+
+    @Override
+    public String visitSetExpr(Expr.Set expr) {
+        return "." + expr.name + " " + expr.object.accept(this) + " " + expr.value.accept(this) + "=";
+    }
+
+    @Override
     public String visitGroupingExpr(Expr.Grouping expr) {
         return expr.expression.accept(this);
     }
@@ -58,6 +68,11 @@ public class RpnPrinter implements Expr.Visitor<String> {
     public String visitTernaryExpr(Expr.Ternary expr) {
         return expr.condition.accept(this) + " " + expr.left.accept(this) + " " +
                 expr.right.accept(this) + " :?";
+    }
+
+    @Override
+    public String visitThisExpr(Expr.This expr) {
+        return expr.keyword.getLexeme();
     }
 
     @Override

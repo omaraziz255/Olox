@@ -4,6 +4,7 @@ public enum StmtDefinition {
     BASE_STMT("Stmt"),
     BLOCK_STMT("Block: List<Stmt> statements"),
     BREAK_STMT("Break: "),
+    CLASS_STMT("Class: Token name, List<Stmt.Function> methods"),
     EXPR_STMT("Expression: Expr expression"),
     FUNC_STMT("Function: Token name, Expr.Function function"),
     IF_STMT("If: Expr condition, Stmt thenBranch, Stmt elseBranch"),

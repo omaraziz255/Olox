@@ -14,10 +14,13 @@ abstract public class Expr {
     R visitBinaryExpr(Binary expr);
     R visitCallExpr(Call expr);
     R visitFunctionExpr(Function expr);
+    R visitGetExpr(Get expr);
     R visitGroupingExpr(Grouping expr);
     R visitLiteralExpr(Literal expr);
     R visitLogicalExpr(Logical expr);
+    R visitSetExpr(Set expr);
     R visitTernaryExpr(Ternary expr);
+    R visitThisExpr(This expr);
     R visitUnaryExpr(Unary expr);
     R visitVariableExpr(Variable expr);
     }
@@ -85,6 +88,21 @@ abstract public class Expr {
     public final List<Stmt> body;
 
 }
+ static public class Get extends Expr {
+    public Get(Expr object, Token name) {
+    this.object = object;
+    this.name = name;
+    }
+
+    @Override
+    public <R> R accept(Visitor<R> visitor) {
+        return visitor.visitGetExpr(this);
+    }
+
+    public final Expr object;
+    public final Token name;
+
+}
  static public class Grouping extends Expr {
     public Grouping(Expr expression) {
     this.expression = expression;
@@ -128,6 +146,23 @@ abstract public class Expr {
     public final Expr right;
 
 }
+ static public class Set extends Expr {
+    public Set(Expr object, Token name, Expr value) {
+    this.object = object;
+    this.name = name;
+    this.value = value;
+    }
+
+    @Override
+    public <R> R accept(Visitor<R> visitor) {
+        return visitor.visitSetExpr(this);
+    }
+
+    public final Expr object;
+    public final Token name;
+    public final Expr value;
+
+}
  static public class Ternary extends Expr {
     public Ternary(Expr condition, Expr left, Expr right) {
     this.condition = condition;
@@ -143,6 +178,19 @@ abstract public class Expr {
     public final Expr condition;
     public final Expr left;
     public final Expr right;
+
+}
+ static public class This extends Expr {
+    public This(Token keyword) {
+    this.keyword = keyword;
+    }
+
+    @Override
+    public <R> R accept(Visitor<R> visitor) {
+        return visitor.visitThisExpr(this);
+    }
+
+    public final Token keyword;
 
 }
  static public class Unary extends Expr {
