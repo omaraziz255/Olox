@@ -3,7 +3,9 @@ package resolver;
 import interpreter.Interpreter;
 import interpreter.Stmt;
 import lexical_scanner.Token;
+import lexical_scanner.TokenType;
 import parser.Expr;
+import utils.ClassType;
 import utils.ErrorReporter;
 import utils.FunctionType;
 
@@ -16,6 +18,8 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     private final Interpreter interpreter;
     private final Stack<Map<String, Variable>> scopes = new Stack<>();
     private FunctionType currentFunction = FunctionType.NONE;
+
+    private ClassType currentClass = ClassType.NONE;
 
     private static class Variable {
         final Token name;
@@ -59,6 +63,37 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     }
 
     @Override
+    public Void visitClassStmt(Stmt.Class stmt) {
+        ClassType enclosingClass = currentClass;
+        currentClass = ClassType.CLASS;
+
+        declare(stmt.name);
+        define(stmt.name);
+
+        beginScope();
+        Token thisToken = new Token(TokenType.THIS, "this", null, stmt.name.getLine());
+        scopes.peek().put(thisToken.getLexeme(), new Variable(thisToken, VariableState.READ, scopes.peek().size()));
+        for(Stmt.Function method : stmt.methods) {
+            FunctionType declaration = FunctionType.METHOD;
+            if(method.name.getLexeme().equals("init")) {
+                declaration = FunctionType.INITIALIZER;
+            }
+            resolveFunction(method, declaration);
+        }
+
+        for(Stmt.Function classMethod : stmt.classMethods) {
+            beginScope();
+            scopes.peek().put(thisToken.getLexeme(), new Variable(thisToken, VariableState.READ, scopes.peek().size()));
+            resolveFunction(classMethod, FunctionType.METHOD);
+            endScope();
+        }
+
+        endScope();
+        currentClass = enclosingClass;
+        return null;
+    }
+
+    @Override
     public Void visitExpressionStmt(Stmt.Expression stmt) {
         resolve(stmt.expression);
         return null;
@@ -69,7 +104,7 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
         declare(stmt.name);
         define(stmt.name);
 
-        resolveFunction(stmt, FunctionType.FUNCTION);
+        resolveFunction(stmt, FunctionType.METHOD);
         return null;
     }
 
@@ -100,7 +135,12 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
             ErrorReporter.getInstance().error(stmt.keyword, "Can't return from top-level code");
         }
 
-        if(stmt.value != null) resolve(stmt.value);
+        if(stmt.value != null) {
+            if(currentFunction == FunctionType.INITIALIZER) {
+                ErrorReporter.getInstance().error(stmt.keyword, "Can't return a value from an initializer");
+            }
+            resolve(stmt.value);
+        }
         return null;
     }
 
@@ -149,13 +189,21 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     @Override
     public Void visitFunctionExpr(Expr.Function expr) {
         beginScope();
-        for(Token param : expr.parameters) {
-            declare(param);
-            define(param);
+        if(expr.parameters != null) {
+            for (Token param : expr.parameters) {
+                declare(param);
+                define(param);
+            }
         }
         resolve(expr.body);
         endScope();
 
+        return null;
+    }
+
+    @Override
+    public Void visitGetExpr(Expr.Get expr) {
+        resolve(expr.object);
         return null;
     }
 
@@ -178,10 +226,26 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     }
 
     @Override
+    public Void visitSetExpr(Expr.Set expr) {
+        resolve(expr.value);
+        resolve(expr.object);
+        return null;
+    }
+
+    @Override
     public Void visitTernaryExpr(Expr.Ternary expr) {
         resolve(expr.condition);
         resolve(expr.left);
         resolve(expr.right);
+        return null;
+    }
+
+    @Override
+    public Void visitThisExpr(Expr.This expr) {
+        if(currentClass == ClassType.NONE) {
+            ErrorReporter.getInstance().error(expr.keyword, "Can't use keyword 'this' outside a class");
+        }
+        resolveLocal(expr, expr.keyword, true);
         return null;
     }
 

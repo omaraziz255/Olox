@@ -7,11 +7,15 @@ public enum ExprDefinition {
     BINARY_EXPR("Binary: Expr left, Token operator, Expr right"),
     CALL_EXPR("Call: Expr callee, Token paren, List<Expr> arguments"),
     FUNC_EXPR("Function: List<Token> parameters, List<Stmt> body"),
-    GROUPING("Grouping: Expr expression"),
-    LITERAL("Literal: Object value"),
-    LOGICAL("Logical: Expr left, Token operator, Expr right"),
-    TERNARY("Ternary: Expr condition, Expr left, Expr right"),
+    GET_EXPR("Get: Expr object, Token name"),
+    GROUPING_EXPR("Grouping: Expr expression"),
+    LITERAL_EXPR("Literal: Object value"),
+    LOGICAL_EXPR("Logical: Expr left, Token operator, Expr right"),
+    SET_EXPR("Set: Expr object, Token name, Expr value"),
+    TERNARY_EXPR("Ternary: Expr condition, Expr left, Expr right"),
+    THIS_EXPR("This: Token keyword"),
     UNARY_EXPR("Unary: Token operator, Expr right"),
+
     VARIABLE_EXPR("Variable: Token name");
 
     public final String expr;

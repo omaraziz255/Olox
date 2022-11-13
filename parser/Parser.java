@@ -1,7 +1,8 @@
 /**
  * This Parser parses the following grammar for Olox
  * program -> declaration* EOF;
- * declaration -> funDecl | varDecl | statement;
+ * declaration -> classDecl | funDecl | varDecl | statement;
+ * classDecl -> "class" IDENTIFIER "{" function* "}";
  * funDecl -> "fun" function;
  * function -> IDENTIFIER "(" parameters? ")" block;
  * parameters -> IDENTIFIER ( "," IDENTIFIER)* ;
@@ -17,7 +18,7 @@
  * expression → comma;
  * comma -> ternary ( "," ternary )* ;
  * ternary -> assignment ( "?" comma ":" ternary)?
- * assignment -> IDENTIFIER "=" assignment | logic_or;
+ * assignment -> (call "." )? IDENTIFIER "=" assignment | logic_or;
  * logic_or -> logic_and ( "or" logic_and)*;
  * logic_and -> equality ( "and" equality)*;
  * equality → comparison ( ( "!=" | "==" ) comparison )* ;
@@ -25,7 +26,7 @@
  * term → factor ( ( "-" | "+" ) factor )* ;
  * factor → unary ( ( "/" | "*" ) unary )* ;
  * unary → ( "!" | "-" ) unary | call ;
- * call -> primary ( "(" equality? ")" )* ;
+ * call -> primary ( "(" equality? ")"  | "." IDENTIFIER )* ;
  * primary → NUMBER | STRING | IDENTIFIER |"true" | "false" | "nil" | "(" expression ")" | "," comma |
  *           ("?" | ":" ) ternary | ("!=" | "==" ) equality | (">" | ">=" | "<" | "<=" ) comparison | "+" term |
  *           ("/" | "*" ) factor;
@@ -76,7 +77,8 @@ public class Parser {
 
     private Stmt declaration() {
         try {
-            if(check(FUN) && checkNext(IDENTIFIER)) {
+            if(match(CLASS)) return classDeclaration();
+            if(check(FUN) && checkNext()) {
                 consume(FUN, null);
                 return function(FunctionType.FUNCTION);
             }
@@ -87,6 +89,21 @@ public class Parser {
             synchronize();
             return null;
         }
+    }
+
+    private Stmt classDeclaration() {
+        Token name = consume(IDENTIFIER, "Expected class name");
+        consume(LEFT_BRACE, "Expected { before class body");
+
+        List<Stmt.Function> methods = new ArrayList<>();
+        List<Stmt.Function> classMethods = new ArrayList<>();
+        while(!check(RIGHT_BRACE) && !isAtEnd()) {
+            boolean isClassMethod = match(CLASS);
+            (isClassMethod?  classMethods: methods).add(function(FunctionType.METHOD));
+        }
+
+        consume(RIGHT_BRACE, "Expected } after class body");
+        return new Stmt.Class(name, methods, classMethods);
     }
 
     private Stmt statement() {
@@ -216,19 +233,23 @@ public class Parser {
     }
 
     private Expr.Function functionBody(FunctionType type) {
-        consume(LEFT_PAREN, "Expected ( after " + type.type + " name");
-        List<Token> parameters = new ArrayList<>();
-        if(!check(RIGHT_PAREN)) {
-            do {
-                if(parameters.size() >= 255) {
-                    error(peek(), "Can't have more than 255 parameters");
-                }
+        List<Token> parameters = null;
+        if(type != FunctionType.METHOD || check(LEFT_PAREN)) {
+            consume(LEFT_PAREN, "Expected ( after " + type.type + " name");
+            parameters = new ArrayList<>();
+            if(!check(RIGHT_PAREN)) {
+                do {
+                    if(parameters.size() >= 255) {
+                        error(peek(), "Can't have more than 255 parameters");
+                    }
 
-                parameters.add(consume(IDENTIFIER, "Expected parameter name"));
-            } while (match(COMMA));
+                    parameters.add(consume(IDENTIFIER, "Expected parameter name"));
+                } while (match(COMMA));
+            }
+
+            consume(RIGHT_PAREN, "Expected ) after parameter list");
+
         }
-
-        consume(RIGHT_PAREN, "Expected ) after parameter list");
 
         consume(LEFT_BRACE, "Expected { before " + type.type + " body");
         List<Stmt> body = block();
@@ -280,6 +301,9 @@ public class Parser {
             if(expr instanceof Expr.Variable) {
                 Token name = ((Expr.Variable)expr).name;
                 return new Expr.Assign(name, value);
+            }
+            else if(expr instanceof Expr.Get get) {
+                return new Expr.Set(get.object, get.name, value);
             }
 
             ErrorReporter.getInstance().error(equals, "Invalid assignment target");
@@ -422,7 +446,11 @@ public class Parser {
         while(true) {
             if(match(LEFT_PAREN)) {
                 expr = finishCall(expr);
-            } else {
+            } else if (match(DOT)){
+                Token name = consume(IDENTIFIER, "Expected property name after .");
+                expr = new Expr.Get(expr, name);
+            }
+            else {
                 break;
             }
         }
@@ -481,6 +509,8 @@ public class Parser {
             return null;
         }
 
+        if(match(THIS)) return new Expr.This(previous());
+
         if(match(FUN)) {
             return functionBody(FunctionType.FUNCTION);
         }
@@ -493,10 +523,10 @@ public class Parser {
         throw parsingError(peek(), message);
     }
 
-    private boolean checkNext(TokenType tokenType) {
+    private boolean checkNext() {
         if(isAtEnd()) return false;
         if(tokens.get(current + 1).getType() == EOF) return false;
-        return tokens.get(current + 1).getType() == tokenType;
+        return tokens.get(current + 1).getType() == TokenType.IDENTIFIER;
     }
 
     private boolean ignoreSemiColon(TokenType type) {

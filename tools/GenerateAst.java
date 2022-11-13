@@ -1,12 +1,13 @@
 package tools;
 
-import utils.packageType;
+import utils.PackageType;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import static tools.ExprDefinition.*;
 import static tools.StmtDefinition.*;
@@ -26,17 +27,21 @@ public class GenerateAst {
                 BINARY_EXPR.expr,
                 CALL_EXPR.expr,
                 FUNC_EXPR.expr,
-                GROUPING.expr,
-                LITERAL.expr,
-                LOGICAL.expr,
-                TERNARY.expr,
+                GET_EXPR.expr,
+                GROUPING_EXPR.expr,
+                LITERAL_EXPR.expr,
+                LOGICAL_EXPR.expr,
+                SET_EXPR.expr,
+                TERNARY_EXPR.expr,
+                THIS_EXPR.expr,
                 UNARY_EXPR.expr,
                 VARIABLE_EXPR.expr
-        ),packageType.EXPRESSION);
+        ), PackageType.EXPRESSION);
 
         defineAst(stmtDir, BASE_STMT.stmt, Arrays.asList(
                 BLOCK_STMT.stmt,
                 BREAK_STMT.stmt,
+                CLASS_STMT.stmt,
                 EXPR_STMT.stmt,
                 FUNC_STMT.stmt,
                 IF_STMT.stmt,
@@ -44,10 +49,10 @@ public class GenerateAst {
                 RETURN_STMT.stmt,
                 VARIABLE_STMT.stmt,
                 WHILE_STMT.stmt
-        ),packageType.STMT);
+        ), PackageType.STMT);
     }
 
-    private static void defineAst(String outputDir, String baseName, List<String> types, packageType pkg) throws IOException {
+    private static void defineAst(String outputDir, String baseName, List<String> types, PackageType pkg) throws IOException {
         String path = outputDir + "/" + baseName + ".java";
         PrintWriter writer = new PrintWriter(path, StandardCharsets.UTF_8);
 
@@ -59,6 +64,8 @@ public class GenerateAst {
         writer.println();
         writer.println("import java.util.List;");
         writer.println();
+        writer.println(Objects.equals(pkg.type, PackageType.STMT.type) ?
+                "import " + PackageType.EXPRESSION.type + ".Expr;" : "import " + PackageType.STMT.type + ".Stmt;");
         writer.println("import lexical_scanner.Token;");
         writer.println();
         writer.println("abstract public class " + baseName + " {");
