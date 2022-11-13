@@ -39,8 +39,10 @@ public class OloxFunction implements OloxCallable {
     @Override
     public Object call(Interpreter interpreter, List<Object> arguments) {
         Environment environment = new Environment(closure);
-        for(int i = 0; i < declaration.parameters.size(); i++) {
-            environment.define(arguments.get(i));
+        if(declaration.parameters != null) {
+            for (int i = 0; i < declaration.parameters.size(); i++) {
+                environment.define(arguments.get(i));
+            }
         }
 
         try {
@@ -55,5 +57,9 @@ public class OloxFunction implements OloxCallable {
         }
 
         return null;
+    }
+
+    public boolean isGetter() {
+        return declaration.parameters == null;
     }
 }

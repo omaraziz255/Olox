@@ -3,11 +3,12 @@ package interpreter;
 import java.util.List;
 import java.util.Map;
 
-public class OloxClass implements OloxCallable {
+public class OloxClass extends OloxInstance implements OloxCallable {
     final String name;
     private final Map<String, OloxFunction> methods;
 
-    OloxClass(String name, Map<String, OloxFunction> methods) {
+    OloxClass(OloxClass metaclsss, String name, Map<String, OloxFunction> methods) {
+        super(metaclsss);
         this.name = name;
         this.methods = methods;
     }

@@ -96,12 +96,14 @@ public class Parser {
         consume(LEFT_BRACE, "Expected { before class body");
 
         List<Stmt.Function> methods = new ArrayList<>();
+        List<Stmt.Function> classMethods = new ArrayList<>();
         while(!check(RIGHT_BRACE) && !isAtEnd()) {
-            methods.add(function(FunctionType.METHOD));
+            boolean isClassMethod = match(CLASS);
+            (isClassMethod?  classMethods: methods).add(function(FunctionType.METHOD));
         }
 
         consume(RIGHT_BRACE, "Expected } after class body");
-        return new Stmt.Class(name, methods);
+        return new Stmt.Class(name, methods, classMethods);
     }
 
     private Stmt statement() {
@@ -231,19 +233,23 @@ public class Parser {
     }
 
     private Expr.Function functionBody(FunctionType type) {
-        consume(LEFT_PAREN, "Expected ( after " + type.type + " name");
-        List<Token> parameters = new ArrayList<>();
-        if(!check(RIGHT_PAREN)) {
-            do {
-                if(parameters.size() >= 255) {
-                    error(peek(), "Can't have more than 255 parameters");
-                }
+        List<Token> parameters = null;
+        if(type != FunctionType.METHOD || check(LEFT_PAREN)) {
+            consume(LEFT_PAREN, "Expected ( after " + type.type + " name");
+            parameters = new ArrayList<>();
+            if(!check(RIGHT_PAREN)) {
+                do {
+                    if(parameters.size() >= 255) {
+                        error(peek(), "Can't have more than 255 parameters");
+                    }
 
-                parameters.add(consume(IDENTIFIER, "Expected parameter name"));
-            } while (match(COMMA));
+                    parameters.add(consume(IDENTIFIER, "Expected parameter name"));
+                } while (match(COMMA));
+            }
+
+            consume(RIGHT_PAREN, "Expected ) after parameter list");
+
         }
-
-        consume(RIGHT_PAREN, "Expected ) after parameter list");
 
         consume(LEFT_BRACE, "Expected { before " + type.type + " body");
         List<Stmt> body = block();

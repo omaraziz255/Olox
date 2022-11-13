@@ -81,6 +81,13 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
             resolveFunction(method, declaration);
         }
 
+        for(Stmt.Function classMethod : stmt.classMethods) {
+            beginScope();
+            scopes.peek().put(thisToken.getLexeme(), new Variable(thisToken, VariableState.READ, scopes.peek().size()));
+            resolveFunction(classMethod, FunctionType.METHOD);
+            endScope();
+        }
+
         endScope();
         currentClass = enclosingClass;
         return null;
@@ -182,9 +189,11 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     @Override
     public Void visitFunctionExpr(Expr.Function expr) {
         beginScope();
-        for(Token param : expr.parameters) {
-            declare(param);
-            define(param);
+        if(expr.parameters != null) {
+            for (Token param : expr.parameters) {
+                declare(param);
+                define(param);
+            }
         }
         resolve(expr.body);
         endScope();

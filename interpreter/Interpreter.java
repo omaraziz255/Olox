@@ -202,12 +202,20 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     @Override
     public Void visitClassStmt(Stmt.Class stmt) {
         Map<String, OloxFunction> methods = new HashMap<>();
+        Map<String, OloxFunction> classMethods = new HashMap<>();
+        for(Stmt.Function classMethod: stmt.classMethods) {
+            OloxFunction function = new OloxFunction(classMethod.name.getLexeme(), classMethod.function,
+                    environment, false);
+            classMethods.put(classMethod.name.getLexeme(), function);
+        }
+
+        OloxClass metaclass = new OloxClass(null, stmt.name.getLexeme() + " metaclass", classMethods);
         for(Stmt.Function method : stmt.methods) {
             OloxFunction function = new OloxFunction(method.name.getLexeme(), method.function, environment,
                     method.name.getLexeme().matches("init"));
             methods.put(method.name.getLexeme(), function);
         }
-        OloxClass klass = new OloxClass(stmt.name.getLexeme(), methods);
+        OloxClass klass = new OloxClass(metaclass, stmt.name.getLexeme(), methods);
         define(stmt.name, klass);
         return null;
     }
@@ -385,7 +393,12 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     public Object visitGetExpr(Expr.Get expr) {
         Object object = evaluate(expr.object);
         if(object instanceof OloxInstance) {
-            return ((OloxInstance) object).get(expr.name);
+            Object result =  ((OloxInstance) object).get(expr.name);
+            if(result instanceof OloxFunction && ((OloxFunction)result).isGetter()) {
+                result = ((OloxFunction) result).call(this, null);
+            }
+
+            return result;
         }
 
         throw new RuntimeError(expr.name, "Only instances can have properties");
