@@ -1,19 +1,15 @@
-var a = "global a";
-var b = "global b";
-var c = "global c";
-{
-var a = "outer a";
-var b = "outer b";
-{
-var a = "inner a";
-print a;
-print b;
-print c;
+class Doughnut {
+    cook() {
+        print "Fry until golden brown.";
+    }
 }
-print a;
-print b;
-print c;
+
+
+class BostonCream < Doughnut {
+    cook() {
+        super.cook();
+        print "Pipe full of custard and coat with chocolate.";
+    }
 }
-print a;
-print b;
-print c;
+
+BostonCream().cook();

@@ -78,6 +78,19 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     }
 
     @Override
+    public Object visitSuperExpr(Expr.Super expr) {
+        int distance = locals.get(expr);
+        OloxClass superclass = (OloxClass)environment.getAt(distance, 0);
+        OloxInstance object = (OloxInstance)environment.getAt(distance - 1, 0);
+
+        OloxFunction method = superclass.findMethod(expr.method.getLexeme());
+        if(method == null) {
+            throw new RuntimeError(expr.method, "Undefined property " + expr.method.getLexeme() + ".");
+        }
+        return method.bind(object);
+    }
+
+    @Override
     public Object visitTernaryExpr(Expr.Ternary expr) {
         Object condition = evaluate(expr.condition);
 
@@ -203,19 +216,34 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     public Void visitClassStmt(Stmt.Class stmt) {
         Map<String, OloxFunction> methods = new HashMap<>();
         Map<String, OloxFunction> classMethods = new HashMap<>();
+        Object superclass = null;
+        if(stmt.superclass != null) {
+            superclass = evaluate(stmt.superclass);
+            if(!(superclass instanceof OloxClass)) {
+                throw new RuntimeError(stmt.superclass.name, "Superclass must be a defined class");
+            }
+
+            environment = new Environment(environment);
+            define(stmt.superclass.name, superclass);
+        }
+
+
         for(Stmt.Function classMethod: stmt.classMethods) {
             OloxFunction function = new OloxFunction(classMethod.name.getLexeme(), classMethod.function,
                     environment, false);
             classMethods.put(classMethod.name.getLexeme(), function);
         }
 
-        OloxClass metaclass = new OloxClass(null, stmt.name.getLexeme() + " metaclass", classMethods);
+        OloxClass metaclass = new OloxClass(null, stmt.name.getLexeme() + " metaclass", (OloxClass) superclass, classMethods);
         for(Stmt.Function method : stmt.methods) {
             OloxFunction function = new OloxFunction(method.name.getLexeme(), method.function, environment,
                     method.name.getLexeme().matches("init"));
             methods.put(method.name.getLexeme(), function);
         }
-        OloxClass klass = new OloxClass(metaclass, stmt.name.getLexeme(), methods);
+
+        OloxClass klass = new OloxClass(metaclass, stmt.name.getLexeme(), (OloxClass)superclass, methods);
+
+        if(superclass != null) environment = environment.enclosing;
         define(stmt.name, klass);
         return null;
     }

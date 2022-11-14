@@ -32,6 +32,7 @@ public class GenerateAst {
                 LITERAL_EXPR.expr,
                 LOGICAL_EXPR.expr,
                 SET_EXPR.expr,
+                SUPER_EXPR.expr,
                 TERNARY_EXPR.expr,
                 THIS_EXPR.expr,
                 UNARY_EXPR.expr,

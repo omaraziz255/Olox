@@ -12,6 +12,7 @@ public enum ExprDefinition {
     LITERAL_EXPR("Literal: Object value"),
     LOGICAL_EXPR("Logical: Expr left, Token operator, Expr right"),
     SET_EXPR("Set: Expr object, Token name, Expr value"),
+    SUPER_EXPR("Super: Token keyword, Token method"),
     TERNARY_EXPR("Ternary: Expr condition, Expr left, Expr right"),
     THIS_EXPR("This: Token keyword"),
     UNARY_EXPR("Unary: Token operator, Expr right"),

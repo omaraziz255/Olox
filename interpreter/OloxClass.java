@@ -5,10 +5,12 @@ import java.util.Map;
 
 public class OloxClass extends OloxInstance implements OloxCallable {
     final String name;
+    final OloxClass superclass;
     private final Map<String, OloxFunction> methods;
 
-    OloxClass(OloxClass metaclsss, String name, Map<String, OloxFunction> methods) {
+    OloxClass(OloxClass metaclsss, String name, OloxClass superclass, Map<String, OloxFunction> methods) {
         super(metaclsss);
+        this.superclass = superclass;
         this.name = name;
         this.methods = methods;
     }
@@ -16,6 +18,10 @@ public class OloxClass extends OloxInstance implements OloxCallable {
     OloxFunction findMethod(String name) {
         if(methods.containsKey(name)) {
             return methods.get(name);
+        }
+
+        if(superclass != null) {
+            return superclass.findMethod(name);
         }
 
         return null;
