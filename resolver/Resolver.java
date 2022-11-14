@@ -70,6 +70,18 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
         declare(stmt.name);
         define(stmt.name);
 
+        if(stmt.superclass != null) {
+            if(stmt.name.getLexeme().equals(stmt.superclass.name.getLexeme())) {
+                ErrorReporter.getInstance().error(stmt.superclass.name, "A class can't inherit from itself");
+            }
+            currentClass = ClassType.SUBCLASS;
+            resolve(stmt.superclass);
+            Token superToken = new Token(TokenType.SUPER, "super", null, stmt.superclass.name.getLine());
+            beginScope();
+            scopes.peek().put(superToken.getLexeme(),
+                    new Variable(superToken, VariableState.READ, scopes.peek().size()));
+        }
+
         beginScope();
         Token thisToken = new Token(TokenType.THIS, "this", null, stmt.name.getLine());
         scopes.peek().put(thisToken.getLexeme(), new Variable(thisToken, VariableState.READ, scopes.peek().size()));
@@ -88,6 +100,7 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
             endScope();
         }
 
+        if(stmt.superclass != null) endScope();
         endScope();
         currentClass = enclosingClass;
         return null;
@@ -229,6 +242,18 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     public Void visitSetExpr(Expr.Set expr) {
         resolve(expr.value);
         resolve(expr.object);
+        return null;
+    }
+
+    @Override
+    public Void visitSuperExpr(Expr.Super expr) {
+        if(currentClass == ClassType.NONE) {
+            ErrorReporter.getInstance().error(expr.keyword, "Can't use super outside class definition");
+        }
+        else if(currentClass == ClassType.CLASS) {
+            ErrorReporter.getInstance().error(expr.keyword, "Can't use super in class with no superclass");
+        }
+        resolveLocal(expr, expr.keyword, true);
         return null;
     }
 

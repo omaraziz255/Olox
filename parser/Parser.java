@@ -2,7 +2,7 @@
  * This Parser parses the following grammar for Olox
  * program -> declaration* EOF;
  * declaration -> classDecl | funDecl | varDecl | statement;
- * classDecl -> "class" IDENTIFIER "{" function* "}";
+ * classDecl -> "class" IDENTIFIER ( "<" IDENTIFIER) ? "{" function* "}";
  * funDecl -> "fun" function;
  * function -> IDENTIFIER "(" parameters? ")" block;
  * parameters -> IDENTIFIER ( "," IDENTIFIER)* ;
@@ -29,7 +29,7 @@
  * call -> primary ( "(" equality? ")"  | "." IDENTIFIER )* ;
  * primary → NUMBER | STRING | IDENTIFIER |"true" | "false" | "nil" | "(" expression ")" | "," comma |
  *           ("?" | ":" ) ternary | ("!=" | "==" ) equality | (">" | ">=" | "<" | "<=" ) comparison | "+" term |
- *           ("/" | "*" ) factor;
+ *           ("/" | "*" ) factor | "super" "." IDENTIFIER;
  */
 
 package parser;
@@ -93,6 +93,13 @@ public class Parser {
 
     private Stmt classDeclaration() {
         Token name = consume(IDENTIFIER, "Expected class name");
+        Expr.Variable superclass = null;
+
+        if(match(LESS)) {
+            consume(IDENTIFIER, "Expected superclass name");
+            superclass = new Expr.Variable(previous());
+        }
+
         consume(LEFT_BRACE, "Expected { before class body");
 
         List<Stmt.Function> methods = new ArrayList<>();
@@ -103,7 +110,7 @@ public class Parser {
         }
 
         consume(RIGHT_BRACE, "Expected } after class body");
-        return new Stmt.Class(name, methods, classMethods);
+        return new Stmt.Class(name, superclass, methods, classMethods);
     }
 
     private Stmt statement() {
@@ -507,6 +514,13 @@ public class Parser {
             error(previous(), "Missing left hand expression in multiplication/division");
             factor();
             return null;
+        }
+
+        if(match(SUPER)) {
+            Token keyword = previous();
+            consume(DOT, "Expected . after super keyword");
+            Token method = consume(IDENTIFIER, "Expected superclass method name");
+            return new Expr.Super(keyword, method);
         }
 
         if(match(THIS)) return new Expr.This(previous());
