@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="d4a086f5-0948-432c-a815-bf4c0e9920f8" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/Jolox/lexical_scanner/Scanner.java" beforeDir="false" afterPath="$PROJECT_DIR$/Jolox/lexical_scanner/Scanner.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Jolox/lexical_scanner/Token.java" beforeDir="false" afterPath="$PROJECT_DIR$/Jolox/lexical_scanner/Token.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Jolox/lexical_scanner/TokenType.java" beforeDir="false" afterPath="$PROJECT_DIR$/Jolox/lexical_scanner/TokenType.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Jolox/olox/Olox.java" beforeDir="false" afterPath="$PROJECT_DIR$/Jolox/olox/Olox.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Jolox/parser/Expr.java" beforeDir="false" afterPath="$PROJECT_DIR$/Jolox/parser/Expr.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Jolox/parser/Parser.java" beforeDir="false" afterPath="$PROJECT_DIR$/Jolox/parser/Parser.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Jolox/resolver/Resolver.java" beforeDir="false" afterPath="$PROJECT_DIR$/Jolox/resolver/Resolver.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Jolox/tools/AstPrinter.java" beforeDir="false" afterPath="$PROJECT_DIR$/Jolox/tools/AstPrinter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Jolox/tools/ExprDefinition.java" beforeDir="false" afterPath="$PROJECT_DIR$/Jolox/tools/ExprDefinition.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Jolox/tools/GenerateAst.java" beforeDir="false" afterPath="$PROJECT_DIR$/Jolox/tools/GenerateAst.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Jolox/tools/RpnPrinter.java" beforeDir="false" afterPath="$PROJECT_DIR$/Jolox/tools/RpnPrinter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Jolox/tools/StmtDefinition.java" beforeDir="false" afterPath="$PROJECT_DIR$/Jolox/tools/StmtDefinition.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Jolox/utils/ClassType.java" beforeDir="false" afterPath="$PROJECT_DIR$/Jolox/utils/ClassType.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Jolox/utils/ErrorReporter.java" beforeDir="false" afterPath="$PROJECT_DIR$/Jolox/utils/ErrorReporter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Jolox/utils/ExitCode.java" beforeDir="false" afterPath="$PROJECT_DIR$/Jolox/utils/ExitCode.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Jolox/utils/FunctionType.java" beforeDir="false" afterPath="$PROJECT_DIR$/Jolox/utils/FunctionType.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Jolox/utils/PackageType.java" beforeDir="false" afterPath="$PROJECT_DIR$/Jolox/utils/PackageType.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Jolox/utils/RunMode.java" beforeDir="false" afterPath="$PROJECT_DIR$/Jolox/utils/RunMode.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/exceptions/BreakException.java" beforeDir="false" afterPath="$PROJECT_DIR$/Jolox/exceptions/BreakException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/exceptions/Return.java" beforeDir="false" afterPath="$PROJECT_DIR$/Jolox/exceptions/Return.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/exceptions/RuntimeError.java" beforeDir="false" afterPath="$PROJECT_DIR$/Jolox/exceptions/RuntimeError.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/interpreter/Environment.java" beforeDir="false" afterPath="$PROJECT_DIR$/Jolox/interpreter/Environment.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/interpreter/Interpreter.java" beforeDir="false" afterPath="$PROJECT_DIR$/Jolox/interpreter/Interpreter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/interpreter/OloxCallable.java" beforeDir="false" afterPath="$PROJECT_DIR$/Jolox/interpreter/OloxCallable.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/interpreter/OloxClass.java" beforeDir="false" afterPath="$PROJECT_DIR$/Jolox/interpreter/OloxClass.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/interpreter/OloxFunction.java" beforeDir="false" afterPath="$PROJECT_DIR$/Jolox/interpreter/OloxFunction.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/interpreter/OloxInstance.java" beforeDir="false" afterPath="$PROJECT_DIR$/Jolox/interpreter/OloxInstance.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/interpreter/Stmt.java" beforeDir="false" afterPath="$PROJECT_DIR$/Jolox/interpreter/Stmt.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lexical_scanner/Scanner.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lexical_scanner/Token.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lexical_scanner/TokenType.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/olox/Olox.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/parser/Expr.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/parser/Parser.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resolver/Resolver.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/test_examples/test-1.olx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/AstPrinter.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/ExprDefinition.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/GenerateAst.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/RpnPrinter.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/StmtDefinition.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/ClassType.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/ErrorReporter.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/ExitCode.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/FunctionType.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/PackageType.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/RunMode.java" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Interface" />
+        <option value="Class" />
+        <option value="Enum" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="FT-Classes" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
+  <component name="ProjectId" id="2DaTGUuHOzl4ZqRoClRBMZxf8Am" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
+    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;jdk.selected.JAVA_MODULE&quot;: &quot;18&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/omarahmedheshamaziz/Desktop/InterpreterProject/Olox&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/Jolox" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Application.olox">
+    <configuration name="GenerateAst" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="tools.GenerateAst" />
+      <module name="Olox" />
+      <option name="PROGRAM_PARAMETERS" value="./parser ./interpreter" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="lexical_scanner.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="olox" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="Jolox.olox" />
+      <module name="Olox" />
+      <option name="PROGRAM_PARAMETERS" value="./Jolox/test_examples/test-1.olx" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Jolox" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="olox.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <list>
+      <item itemvalue="Application.GenerateAst" />
+      <item itemvalue="Application.olox" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Application.olox" />
+        <item itemvalue="Application.GenerateAst" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="d4a086f5-0948-432c-a815-bf4c0e9920f8" name="Changes" comment="" />
+      <created>1660936103085</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1660936103085</updated>
+      <workItem from="1660936114585" duration="7956000" />
+      <workItem from="1661542209481" duration="19760000" />
+      <workItem from="1664316414794" duration="42648000" />
+      <workItem from="1665775508862" duration="22026000" />
+      <workItem from="1667639027064" duration="4470000" />
+      <workItem from="1668252804686" duration="6155000" />
+      <workItem from="1668285009365" duration="149000" />
+      <workItem from="1668286364547" duration="604000" />
+      <workItem from="1668327212514" duration="134000" />
+      <workItem from="1668345835616" duration="1388000" />
+      <workItem from="1668370927858" duration="295000" />
+      <workItem from="1668371999103" duration="5889000" />
+      <workItem from="1668515846822" duration="403000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>
