@@ -1,4 +1,5 @@
 add_subdirectory(bytecode)
+add_subdirectory(entities)
 add_subdirectory(memory)
 add_subdirectory(utils)
 
