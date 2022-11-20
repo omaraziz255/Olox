@@ -1,6 +1,8 @@
 add_subdirectory(bytecode)
+add_subdirectory(compiler)
 add_subdirectory(entities)
 add_subdirectory(memory)
+add_subdirectory(scanner)
 add_subdirectory(utils)
 add_subdirectory(virtual-machine)
 
