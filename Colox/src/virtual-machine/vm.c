@@ -3,6 +3,7 @@
 
 #include <utils/common.h>
 #include <virtual-machine/vm.h>
+#include <compiler/compiler.h>
 #include <utils/debug.h>
 
 VM vm;
@@ -65,10 +66,9 @@ void freeVM() {
 
 }
 
-InterpretResult interpret(Chunk* chunk) {
-    vm.chunk = chunk;
-    vm.ip = vm.chunk->code;
-    return run();
+InterpretResult interpret(const char* source) {
+    compile(source);
+    return INTERPRET_OK;
 }
 
 void push(Value value) {

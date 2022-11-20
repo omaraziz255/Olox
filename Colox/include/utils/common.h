@@ -8,5 +8,7 @@
 #include <stdint.h>
 
 #define DEBUG_TRACE_EXECUTION
-
+#define USER_DATA_INCORRECT 65
+#define RUNTIME_ERROR   70
+#define IO_ERROR    74
 #endif //COLOX_COMMON_H
