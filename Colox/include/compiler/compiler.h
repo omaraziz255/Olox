@@ -3,6 +3,8 @@
 #ifndef COLOX_COMPILER_H
 #define COLOX_COMPILER_H
 
-void compile(const char* source);
+#include <virtual-machine/vm.h>
+
+bool compile(const char* source, Chunk* chunk);
 
 #endif //COLOX_COMPILER_H
