@@ -7,6 +7,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#define DEBUG_PRINT_CODE
 #define DEBUG_TRACE_EXECUTION
 #define USER_DATA_INCORRECT 65
 #define RUNTIME_ERROR   70
