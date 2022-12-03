@@ -9,6 +9,7 @@
 #include <utils/debug.h>
 #include <entities/object.h>
 #include <memory/memory.h>
+#include <stdlib.h>
 
 VM vm;
 
@@ -24,11 +25,13 @@ static void concatenate() {
     ObjString* b = AS_STRING(pop());
     ObjString* a = AS_STRING(pop());
     int length = a->length + b->length;
-    ObjString* result = makeString(length);
-    memcpy(result->chars, a->chars, a->length);
-    memcpy(result->chars + a->length, b->chars, b->length);
-    result->chars[length] = '\0';
+    char* temp_buffer = malloc(length * sizeof(char));
+    memcpy(temp_buffer, a->chars, a->length);
+    memcpy(temp_buffer + a->length, b->chars, b->length);
+    temp_buffer[length] = '\0';
+    ObjString* result = copyString(temp_buffer, length);
     push(OBJ_VAL((Obj*)result));
+    free(temp_buffer);
 }
 
 static void runtimeError(const char* format, ...);
@@ -136,9 +139,11 @@ static void runtimeError(const char* format, ...) {
 void initVM() {
     resetStack();
     vm.objects = NULL;
+    initTable(&vm.strings);
 }
 
 void freeVM() {
+    freeTable(&vm.strings);
     freeObjects();
 }
 
