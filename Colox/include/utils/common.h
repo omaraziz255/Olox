@@ -9,6 +9,7 @@
 
 #define DEBUG_PRINT_CODE
 #define DEBUG_TRACE_EXECUTION
+#define UINT8_COUNT (UINT8_MAX + 1)
 #define USER_DATA_INCORRECT 65
 #define RUNTIME_ERROR   70
 #define IO_ERROR    74
