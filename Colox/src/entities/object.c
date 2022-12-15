@@ -19,6 +19,15 @@ static Obj* allocateObject(size_t size, ObjType type) {
     return object;
 }
 
+ObjFunction* newFunction() {
+    ObjFunction* function = ALLOCATE_OBJ(ObjFunction, OBJ_FUNCTION);
+
+    function->arity = 0;
+    function->name = NULL;
+    initChunk(&function->chunk);
+    return function;
+}
+
 static uint32_t hashString(const char* key, int length) {
     uint32_t hash = 2166136261u;
     for(int i = 0; i < length; i++) {
@@ -28,14 +37,6 @@ static uint32_t hashString(const char* key, int length) {
 
     return hash;
 }
-
-//static ObjString* allocateString(char* chars, int length) {
-//    ObjString* string = ALLOCATE_OBJ(ObjString, OBJ_STRING);
-//    string->length = length;
-//    string->chars = chars;
-//
-//    return string;
-//}
 
 static ObjString* makeString(int length, uint32_t hash) {
     ObjString* string = (ObjString*) allocateObject(sizeof(ObjString) + length + 1, OBJ_STRING);
@@ -57,8 +58,19 @@ ObjString* copyString(const char* chars, int length) {
     return string;
 }
 
+static void printFunction(ObjFunction* function) {
+    if(function->name == NULL) {
+        printf("<script>");
+        return;
+    }
+    printf("<fn %s>", function->name->chars);
+}
+
 void printObject(Value value) {
     switch(OBJ_TYPE(value)) {
+        case OBJ_FUNCTION:
+            printFunction(AS_FUNCTION(value));
+            break;
         case OBJ_STRING:
             printf("%s", AS_CSTRING(value));
             break;
