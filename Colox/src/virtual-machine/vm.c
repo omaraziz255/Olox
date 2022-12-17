@@ -108,14 +108,16 @@ static bool isFalsey(Value value) {
 }
 
 static void concatenate() {
-    ObjString* b = AS_STRING(pop());
-    ObjString* a = AS_STRING(pop());
+    ObjString* b = AS_STRING(peek(0));
+    ObjString* a = AS_STRING(peek(1));
     int length = a->length + b->length;
     char* temp_buffer = malloc(length * sizeof(char));
     memcpy(temp_buffer, a->chars, a->length);
     memcpy(temp_buffer + a->length, b->chars, b->length);
     temp_buffer[length] = '\0';
     ObjString* result = copyString(temp_buffer, length);
+    pop();
+    pop();
     push(OBJ_VAL((Obj*)result));
     free(temp_buffer);
 }
@@ -347,6 +349,12 @@ static void runtimeError(const char* format, ...) {
 void initVM() {
     resetStack();
     vm.objects = NULL;
+    vm.bytesAllocated = 0;
+    vm.nextGC = 1024 * 1024;
+
+    vm.grayCount = 0;
+    vm.grayCapacity = 0;
+    vm.grayStack = NULL;
     initTable(&vm.globals);
     initTable(&vm.strings);
 

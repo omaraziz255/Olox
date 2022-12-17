@@ -7,5 +7,6 @@
 #include <virtual-machine/vm.h>
 
 ObjFunction* compile(const char* source);
+void markCompilerRoots();
 
 #endif //COLOX_COMPILER_H
