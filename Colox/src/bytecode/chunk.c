@@ -1,6 +1,5 @@
 /** Created by Omar Ahmed Hesham Aziz on 15/11/2022 */
 
-#include <stdlib.h>
 #include <bytecode/chunk.h>
 #include <memory/memory.h>
 #include <virtual-machine/vm.h>

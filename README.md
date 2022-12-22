@@ -15,3 +15,14 @@ those expressions by parsing that tree in a traversal similar to an LRV traversa
 This offers a simpler approach but depends largely on the JVM for type resolution and memory management 
 (A source of overhead). This along with the inherent inefficiency of tree-walk interpreters make Jolox a less efficient 
 implementation compared to its Colox counterpart.
+
+## Colox
+
+Colox incorporates a pipeline of a parser, which parses source code into its associated language tokens and provides 
+them to the compiler. The compiler itself is responsible for generating bytecode according to the different combinations
+of tokens it receives. Bytecode instructions are instructions that can later be interpreted by the Colox Virtual Machine
+using a recursive stack-based descent.
+
+The C-implementation of Olox offers more raw deep dives and optimizations into features that the JVM provided for free 
+to Jolox. Features like garbage collection using live object tracking and scoping, call frames, and string interning
+help in optimizing Colox in a more customized way to the language's implementation.
