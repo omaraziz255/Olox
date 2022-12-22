@@ -1,6 +1,5 @@
 /** Created by Omar Ahmed Hesham Aziz on 20/11/2022 */
 
-#include <stdio.h>
 #include <string.h>
 
 #include <utils/common.h>
@@ -206,7 +205,8 @@ Token scanToken() {
         case '"':
             return string();
 
-    }
+        default:
+            return errorToken("Unexpected character");
 
-    return errorToken("Unexpected Character.");
+    }
 }
